@@ -1,0 +1,49 @@
+# suite config
+suites:
+    unit:
+        actor: UnitTester
+        path: ./suites/unit/
+        bootstrap: 'bootstrap.php'
+        modules:
+            enabled:
+                - Yii2:
+                      configFile: 'tests/testapp/config/test.php'
+                      part: [init, orm]
+                - Db:
+                      dsn: pgsql:host=pgsql;dbname=testdb
+                      user: dbuser
+                      password: dbpass
+                      dump: 'tests/codeception/_data/dump.sql'
+                      populate: true
+                      cleanup: false
+                      reconnect: true
+                      waitlock: 10
+
+    api:
+        actor: ApiTester
+        path: ./suites/api/
+        modules:
+            enabled:
+                - Asserts
+                - REST:
+                      url: http://127.0.0.1:80
+                      depends: PhpBrowser
+                - Db:
+                      dsn: pgsql:host=pgsql;dbname=testdb
+                      user: dbuser
+                      password: dbpass
+                      dump: 'tests/codeception/_data/dump.sql'
+                      populate: true
+                      cleanup: true
+                      reconnect: true
+                      waitlock: 10
+
+paths:
+    tests: tests/codeception
+    output: tests/codeception/_output
+    data: tests/codeception/_data
+    support: tests/codeception/_support
+
+settings:
+    shuffle: false
+    lint: true

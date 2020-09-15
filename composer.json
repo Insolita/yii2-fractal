@@ -1,0 +1,54 @@
+{
+	"name": "insolita/yii2-fractal",
+	"description": "Json-api spec implementation with league/fractal",
+	"keywords": [
+		"yii2",
+		"rest",
+		"json",
+		"json-api"
+	],
+	"type": "library",
+	"license": "MIT",
+	"require": {
+		"php":            ">=7.1.0",
+		"ext-json": "*",
+		"league/fractal": "^0.19.2",
+		"yiisoft/yii2":   "~2.0.15"
+		
+	},
+	"require-dev": {
+		"cebe/indent": "*",
+		"friendsofphp/php-cs-fixer": "~2.13.1",
+		"codeception/codeception": "^4.1",
+		"codeception/module-yii2": "^1.1",
+		"codeception/module-rest": "^1.0.0",
+		"codeception/module-phpbrowser": "^1.0.0",
+		"codeception/module-asserts": "^1.0.0",
+		"fzaninotto/faker": "^1.9",
+		"codeception/module-db": "^1.0",
+		"codeception/assert-throws": "^1.0",
+		"codeception/verify": "^1.5"
+	},
+	"autoload": {
+		"psr-4": {
+			"insolita\\fractal\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"tests\\codeception\\unit\\": "unit/",
+			"tests\\testapp\\": "app/"
+		}
+	},
+	"config": {
+		"platform": {
+			"php": "7.1.3"
+		}
+	},
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://asset-packagist.org"
+		}
+	]
+}

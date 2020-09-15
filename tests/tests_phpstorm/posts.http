@@ -1,0 +1,125 @@
+### Index HEAD
+HEAD http://127.0.0.1:8400/posts
+Accept: application/vnd.api+json
+
+### Index OPTIONS
+OPTIONS http://127.0.0.1:8400/posts
+Accept: application/vnd.api+json
+
+### Index
+GET http://127.0.0.1:8400/posts
+Accept: application/vnd.api+json
+
+### Index paged
+GET http://127.0.0.1:8400/posts?page[size]=10&page[number]=5
+Accept: application/vnd.api+json
+
+### Index with fields
+GET http://127.0.0.1:8400/posts?fields[posts]=name,category_id,author_id&page[size]=10&page[number]=4
+Accept: application/vnd.api+json
+
+### Index with includes
+GET http://127.0.0.1:8400/posts?page[size]=3&sort=name&include=category,author&fields[posts]=id,name,category_id,author_id,category,author
+Accept: application/vnd.api+json
+
+### Index with bad includes
+GET http://127.0.0.1:8400/posts?page[size]=3&sort=name&include=comments
+Accept: application/vnd.api+json
+
+### Index with filter
+GET http://127.0.0.1:8400/posts?fields[posts]=name,category_id&filter[name][like]=omnis&filter[category_id][neq]=3
+Accept: application/vnd.api+json
+
+### View Unaccessible
+GET http://127.0.0.1:8400/posts/3
+Accept: application/vnd.api+json
+
+### View
+GET http://127.0.0.1:8400/posts/43
+Accept: application/vnd.api+json
+
+### View fields
+GET http://127.0.0.1:8400/posts/43?fields[posts]=name,category_id,author_id
+Accept: application/vnd.api+json
+
+### View fields, with unexisted
+GET http://127.0.0.1:8400/posts/43?fields[posts]=name,publish_date
+Accept: application/vnd.api+json
+
+### View fields, include
+GET http://127.0.0.1:8400/posts/43?fields[posts]=name,category_id,author_id&include=author,category
+Accept: application/vnd.api+json
+
+### Create
+POST http://127.0.0.1:8400/posts
+Content-Type: application/vnd.api+json
+
+{
+    "data": {
+        "type": "posts",
+        "attributes": {
+            "category_id": 2,
+            "name": "My some post",
+            "body": "The quick brown fox jumps over the lazy dog"
+        }
+    }
+}
+
+### Create Invalid
+POST http://127.0.0.1:8400/posts
+Content-Type: application/vnd.api+json
+
+{
+    "data": {
+        "type": "posts",
+        "attributes": {
+            "name": "My first post"
+        }
+    }
+}
+
+### Delete
+DELETE http://127.0.0.1:8400/posts/55
+
+### UPDATE
+PATCH http://127.0.0.1:8400/posts/56
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+    "data": {
+        "id": 56,
+        "type": "posts",
+        "attributes": {
+            "name": "Updated Post Title"
+        }
+    }
+}
+
+### List for user
+GET http://127.0.0.1:8400/users/1/posts?sort=-id
+Accept: application/vnd.api+json
+
+### List for category
+GET http://127.0.0.1:8400/categories/2/posts
+Accept: application/vnd.api+json
+
+### View for category
+GET http://127.0.0.1:8400/categories/2/posts/56
+Accept: application/vnd.api+json
+
+### View for category invalid
+GET http://127.0.0.1:8400/categories/2/posts/1
+Accept: application/vnd.api+json
+
+### Relationships category
+GET http://127.0.0.1:8400/posts/26/relationships/category
+Accept: application/vnd.api+json
+
+### Relationships author
+GET http://127.0.0.1:8400/posts/26/relationships/author
+Accept: application/vnd.api+json
+
+### Relationships comments
+GET http://127.0.0.1:8400/posts/26/relationships/comments
+Accept: application/vnd.api+json

@@ -1,0 +1,40 @@
+version: "3.5"
+services:
+    php:
+        build: tests/docker
+        volumes:
+            - ./tests/tmp/.composer:/root/.composer:rw
+            - .:/app
+        ports:
+            - '8400:80'
+        environment:
+            - TZ=UTC
+            - TIMEZONE=UTC
+            - DB_USER=dbuser
+            - DB_PASSWORD=dbpass
+            - IN_DOCKER=docker
+            - PHP_XDEBUG_ENABLED=1
+            - XDEBUG_CONFIG="remote_host=host.docker.internal"
+            - PHP_IDE_CONFIG="serverName=Docker"
+        depends_on:
+            - pgsql
+        tty: false
+    pgsql:
+        image: postgres:12
+        ports:
+            - '15408:5432'
+        volumes:
+            - ./tests/tmp/postgres:/var/lib/postgresql/data:rw
+        environment:
+            TZ: UTC
+            PGTZ: UTC
+            POSTGRES_USER: dbuser
+            POSTGRES_PASSWORD: dbpass
+            POSTGRES_DB: testdb
+networks:
+    default:
+        driver: bridge
+        ipam:
+          config:
+              - subnet: 172.12.12.0/24
+

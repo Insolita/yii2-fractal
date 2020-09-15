@@ -1,0 +1,87 @@
+### Default route
+GET http://127.0.0.1:8400/defaults
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+});
+client.test("Response content-type is json", function() {
+  var type = response.contentType.mimeType;
+  client.assert(type === "application/vnd.api+json", "Expected 'application/vnd.api+json' but received '" + type + "'");
+});
+client.test("Check content", function() {
+    client.assert(response.body.hasOwnProperty("data"), "Cannot find 'data' in response");
+    client.assert(response.body.data.id === 'index', 'invalid response id');
+    client.assert(response.body.data.type === 'default', 'invalid response type');
+    client.assert(response.body.data.attributes.content === "hello world!", 'invalid response attributes');
+});
+%}
+
+### Route with simple array
+GET http://127.0.0.1:8400/default/array
+
+> {%
+client.test("Request should raise error", function() {
+  client.assert(response.status === 500, "Response status is not 500");
+});
+client.test("Response content-type is json", function() {
+  var type = response.contentType.mimeType;
+  client.assert(type === "application/vnd.api+json", "Expected 'application/vnd.api+json' but received '" + type + "'");
+});
+client.test("Check content", function() {
+    client.assert(response.body.hasOwnProperty("errors"), "Cannot find 'errors' in response");
+    client.assert(response.body.errors[0].details === 'Response data is not followed JsonApi spec', 'invalid message');
+});
+%}
+
+### Route with JsonApiError
+GET http://127.0.0.1:8400/default/json-error
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 422, "Response status is  422");
+});
+client.test("Ensure response data", function() {
+    client.assert(!response.body.hasOwnProperty("data"), "Response shouldn't contains data object");
+    client.assert(response.body.hasOwnProperty("errors"), "Response must contains data object");
+});
+%}
+
+### Route with Exception
+GET http://127.0.0.1:8400/default/forbidden
+
+> {%
+client.test("Request raise exception", function() {
+  client.assert(response.status === 403, "Response status should be 403");
+});
+client.test("Ensure response data", function() {
+    client.assert(!response.body.hasOwnProperty("data"), "Response shouldn't contains data object");
+    client.assert(response.body.hasOwnProperty("errors"), "Response must contains data object");
+});
+%}
+
+### Route with Exception
+GET http://127.0.0.1:8400/default/exception
+
+> {%
+client.test("Request raise exception", function() {
+  client.assert(response.status === 500, "Response status should be 500");
+});
+client.test("Ensure response data", function() {
+    client.assert(!response.body.hasOwnProperty("data"), "Response shouldn't contains data object");
+    client.assert(response.body.hasOwnProperty("errors"), "Response must contains data object");
+});
+%}
+
+### Route with php error
+GET http://127.0.0.1:8400/default/fatal
+
+> {%
+client.test("Request raise exception", function() {
+  client.assert(response.status === 500, "Response status should be 500");
+});
+client.test("Ensure response data", function() {
+    client.assert(!response.body.hasOwnProperty("data"), "Response shouldn't contains data object");
+    client.assert(response.body.hasOwnProperty("errors"), "Response must contains data object");
+});
+%}

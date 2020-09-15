@@ -1,0 +1,124 @@
+### Bad action config
+GET http://127.0.0.1:8400/category/bad-config
+Accept: application/vnd.api+json
+
+> {%
+client.test("Request should return error", function() {
+  client.assert(response.status === 500, "Response status is 500");
+  client.assert(response.body.errors[0].title == "Invalid Configuration", "Response has invalid data");
+});
+client.test("Response content-type is json", function() {
+  var type = response.contentType.mimeType;
+  client.assert(type === "application/vnd.api+json", "Expected 'application/vnd.api+json' but received '" + type + "'");
+});
+%}
+
+### Index HEAD
+HEAD http://127.0.0.1:8400/category
+Accept: application/vnd.api+json
+
+### Index OPTIONS
+OPTIONS http://127.0.0.1:8400/category
+Accept: application/vnd.api+json
+
+### Index
+GET http://127.0.0.1:8400/category
+Accept: application/vnd.api+json
+
+### Index paged
+GET http://127.0.0.1:8400/category?page[size]=3
+Accept: application/vnd.api+json
+
+### Index paged, sorted
+GET http://127.0.0.1:8400/category?page[size]=3&sort=-name
+Accept: application/vnd.api+json
+
+### Index sorted
+GET http://127.0.0.1:8400/category?sort=-id,name
+Accept: application/vnd.api+json
+
+### View
+GET http://127.0.0.1:8400/category/3
+Accept: application/vnd.api+json
+
+### View
+GET http://127.0.0.1:8400/category/3?fields[category]=name
+Accept: application/vnd.api+json
+
+### View Options
+OPTIONS http://127.0.0.1:8400/category/3
+Accept: application/vnd.api+json
+
+
+### Create
+POST http://127.0.0.1:8400/category
+Content-Type: application/vnd.api+json
+
+{
+    "data": {
+        "type": "category",
+        "attributes": {
+            "name": "Mascarpone"
+        }
+    }
+}
+
+### Create Invalid
+POST http://127.0.0.1:8400/category
+Content-Type: application/vnd.api+json
+
+{
+    "data": {
+        "type": "category",
+        "attributes": {
+            "name": "Banana"
+        }
+    }
+}
+
+### Delete
+DELETE http://127.0.0.1:8400/category/9
+
+### UPDATE
+PATCH http://127.0.0.1:8400/category/3
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+    "data": {
+        "id": 3,
+        "type": "category",
+        "attributes": {
+            "name": "UpdatedCategory",
+            "active": true
+        }
+    }
+}
+
+### UPDATE partial1
+PUT http://127.0.0.1:8400/category/3
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+    "data": {
+        "type": "category",
+        "attributes": {
+            "name": "Orange"
+        }
+    }
+}
+
+### UPDATE partial2
+PUT http://127.0.0.1:8400/category/3
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+    "data": {
+        "type": "category",
+        "attributes": {
+            "active": false
+        }
+    }
+}
