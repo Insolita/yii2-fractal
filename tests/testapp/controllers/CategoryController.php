@@ -34,12 +34,18 @@ class CategoryController extends JsonApiController
                   'class' => ViewAction::class,
                   'modelClass'=>Category::class,
                   'resourceKey'=>'category',
+//                  'findModel'=>function($id){
+//                     return Category::find()->where(['active'=>true, 'id'=>$id])->one();
+//                  }
                   //'transformer'=>CategoryTransformer::class,
               ],
              'update'=>[
                  'class' => UpdateAction::class,
                  'modelClass'=>Category::class,
                  'resourceKey'=>'category',
+//                 'findModel'=>function($id){
+//                     return Category::find()->where(['active'=>true, 'id'=>$id])->one();
+//                 }
                  //'transformer'=>CategoryTransformer::class,
              ],
              'delete'=>[

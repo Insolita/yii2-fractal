@@ -52,7 +52,7 @@ trait HasParentAttributes
      * If not set, [[findModelFor()]] will be used instead.
      * The signature of the callable should be:
      * ```php
-     * function ($id, $action) {
+     * function ($id, $parentId, $action) {
      *     // $id is the primary key value. If composite primary key, the key values
      *     // will be separated by comma.
      *     // $action is the action object currently running
@@ -89,8 +89,13 @@ trait HasParentAttributes
      */
     protected function findModelForParent($id)
     {
+        $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
         if ($this->findModelFor !== null) {
-            return call_user_func($this->findModelFor, $id, $this);
+            $model = call_user_func($this->findModelFor, $id, $parentId, $this);
+            if(!$model) {
+                throw new NotFoundHttpException("Object not found: $id");
+            }
+            return $model;
         }
 
         /* @var $modelClass ActiveRecordInterface */
@@ -101,7 +106,6 @@ trait HasParentAttributes
             $model = $modelClass::findOne([$this->parentIdAttribute => $id]);
         } else {
             $condition = $this->findModelCondition($id);
-            $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
             $condition[$this->parentIdAttribute] = $parentId;
             $model = $modelClass::findOne($condition);
         }

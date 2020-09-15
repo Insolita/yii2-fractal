@@ -87,7 +87,11 @@ class JsonApiAction extends Action
     protected function findModel($id)
     {
         if ($this->findModel !== null) {
-            return call_user_func($this->findModel, $id, $this);
+            $model = call_user_func($this->findModel, $id, $this);
+            if(!$model) {
+                throw new NotFoundHttpException("Object not found: $id");
+            }
+            return $model;
         }
 
         /* @var $modelClass ActiveRecordInterface */

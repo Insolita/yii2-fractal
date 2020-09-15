@@ -107,6 +107,9 @@ class PostController extends ActiveJsonApiController
             'checkAccess' => [$this, 'checkAccess'],
             'parentIdParam' => 'categoryId',
             'parentIdAttribute' => 'category_id',
+            'findModelFor'=>function($id, $parentId) {
+               return Post::find()->where(['category_id'=>$parentId, 'id' => $id])->one();
+            }
         ];
         $actions['relationships'] = [
             'class' => ListRelationshipAction::class,
