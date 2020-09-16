@@ -54,7 +54,6 @@ jobs:
             ${{ runner.os }}-php-${{ matrix.php-versions }}
       
     - name: Install deps
-      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
       
     - name: Prepare permissions
