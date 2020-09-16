@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php-versions: [ '7.1']
+        php-versions: [ '7.1', '7.2', '7.3', '7.4']
 
     steps:
     - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
     - name: Unit tests
       run: php vendor/bin/codecept run unit --env github
 
-    - name: Run tests
+    - name: Api tests
       run: |
         nohup php tests/testapp/yii serve -p=8080 > tests/testapp/runtime/yii.log 2>&1 &
         sleep 10 &&
