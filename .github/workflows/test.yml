@@ -1,13 +1,16 @@
-name: PHP Composer
-
+name: yii2-fractal
 on:
   push:
     branches: [ master, dev ]
   pull_request:
     branches: [ master ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
 
 jobs:
-  build:
+  test:
+    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'ci skip')"
     name: yii2-fractal (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     env:
@@ -52,10 +55,10 @@ jobs:
           key: ${{ runner.os }}-php-${{ matrix.php-versions }}-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-versions }}
-      
+
     - name: Install deps
       run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
-      
+
     - name: Prepare permissions
       run: chmod -R 0777 tests/testapp/runtime
 

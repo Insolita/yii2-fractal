@@ -1,5 +1,7 @@
 # yii2-fractal   Beta
 
+![yii2-fractal](https://github.com/Insolita/yii2-fractal/workflows/PHP%20Composer/badge.svg?branch=master)
+
 The set of utils and actions for prepare Rest API accordingly JSON:Api https://jsonapi.org/format/
 With https://fractal.thephpleague.com
 
