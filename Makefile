@@ -35,7 +35,7 @@ installdocker:
 	docker-compose run --rm php composer install && chmod +x tests/testapp/yii
 
 testdocker:
-	docker-compose run --rm php sh -c 'vendor/bin/codecept run'
+	docker-compose run --rm php sh -c 'vendor/bin/codecept run --env docker'
 
 .PHONY: all check-style fix-style install test clean clean_all up cli installdocker migrate testdocker
 
