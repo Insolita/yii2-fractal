@@ -1,0 +1,39 @@
+name: PHP Composer
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Build the stack
+      run: docker-compose up -d
+      
+    - name: Check running containers
+      run: docker ps -a
+      
+    - name: Check logs
+      run: docker logs yii2-fractal_php_1
+    
+    - name: Prepare docker app
+      run: make installdocker
+      
+    - name: Prepare permissions
+      run: chmod -R 0777 tests/testapp/runtime
+    
+    - name: Run tests
+      run: make testdocker
+   
+
+    
+
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    # - name: Run test suite
+    #   run: composer run-script test

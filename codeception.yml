@@ -18,6 +18,23 @@ suites:
                       cleanup: false
                       reconnect: true
                       waitlock: 10
+        env:
+            github:
+                modules:
+                    config:
+                        Db:
+                            dsn: pgsql:host=127.0.0.1;dbname=testdb
+            local:
+                modules:
+                    config:
+                        Db:
+                            dsn: pgsql:host=127.0.0.1;dbname=testdb
+            docker:
+                modules:
+                    config:
+                        Db:
+                            dsn: pgsql:host=pgsql;dbname=testdb
+
 
     api:
         actor: ApiTester
@@ -26,7 +43,7 @@ suites:
             enabled:
                 - Asserts
                 - REST:
-                      url: http://127.0.0.1:80
+                      url: http://php
                       depends: PhpBrowser
                 - Db:
                       dsn: pgsql:host=pgsql;dbname=testdb
@@ -37,6 +54,28 @@ suites:
                       cleanup: true
                       reconnect: true
                       waitlock: 10
+        env:
+            github:
+                modules:
+                    config:
+                        REST:
+                            url: http://localhost:8080
+                        Db:
+                            dsn: pgsql:host=127.0.0.1;dbname=testdb
+            local:
+                modules:
+                    config:
+                        REST:
+                            url: http://127.0.0.1:80
+                        Db:
+                            dsn: pgsql:host=127.0.0.1;dbname=testdb
+            docker:
+                modules:
+                    config:
+                        REST:
+                            url: http://php
+                        Db:
+                            dsn: pgsql:host=pgsql;dbname=testdb
 
 paths:
     tests: tests/codeception

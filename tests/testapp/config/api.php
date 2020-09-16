@@ -4,6 +4,9 @@ use insolita\fractal\JsonApiBootstrap;
 use yii\caching\FileCache;
 use yii\web\UrlManager;
 
+$dsn = getenv('IN_DOCKER')
+    ? 'pgsql:host=pgsql;dbname=testdb'
+    : 'pgsql:host=127.0.0.1;dbname=testdb';
 return [
     'id' => 'fractal-test-app',
     'timeZone' => 'UTC',
@@ -19,7 +22,7 @@ return [
     'components' => [
         'db' => [
             'class' => \yii\db\Connection::class,
-            'dsn' => 'pgsql:host=pgsql;dbname=testdb',
+            'dsn' => $dsn,
             'username' => 'dbuser',
             'password' => 'dbpass',
             'charset' => 'utf8',
@@ -68,6 +71,7 @@ return [
             'enablePrettyUrl' => true,
             'enableStrictParsing' => true,
             'showScriptName' => false,
+            'hostinfo'=>'http://127.0.0.1:80',
             'rules' => [
                 'GET,HEAD /defaults' => 'default/index',
                 'GET,HEAD /me' => 'me/info',

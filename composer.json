@@ -18,7 +18,7 @@
 	},
 	"require-dev": {
 		"cebe/indent": "*",
-		"friendsofphp/php-cs-fixer": "~2.13.1",
+		"friendsofphp/php-cs-fixer": "~2.16",
 		"codeception/codeception": "^4.1",
 		"codeception/module-yii2": "^1.1",
 		"codeception/module-rest": "^1.0.0",
