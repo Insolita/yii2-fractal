@@ -1,7 +1,10 @@
 <?php
 use app\models\User;
 use insolita\fractal\JsonApiBootstrap;
+use insolita\fractal\JsonApiErrorHandler;
+use insolita\fractal\JsonApiResponseFormatter;
 use yii\caching\FileCache;
+use yii\web\JsonParser;
 use yii\web\UrlManager;
 
 $dsn = getenv('IN_DOCKER')
@@ -18,7 +21,8 @@ return [
         '@bower' => '@vendor/bower-asset',
         '@npm' => '@vendor/npm-asset',
     ],
-    'bootstrap' => [JsonApiBootstrap::class, 'log'],
+    'bootstrap' => ['log'],
+    //'bootstrap' => [JsonApiBootstrap::class, 'log'],
     'components' => [
         'db' => [
             'class' => \yii\db\Connection::class,
@@ -36,22 +40,23 @@ return [
             'enableCsrfValidation' => false,
             'enableCookieValidation' => false,
             'enableCsrfCookie' => false,
-//            'parsers' => [
-//                'application/json' => JsonParser::class,
-//                'application/vnd.api+json' => JsonParser::class,
-//            ]
+            'parsers' => [
+                'application/json' => JsonParser::class,
+                'application/vnd.api+json' => JsonParser::class,
+            ]
         ],
-//        'response' => [
-//            'formatters'=>[
-//                \yii\web\Response::FORMAT_JSON => [
-//                    'class'=>JsonApiResponseFormatter::class,
-//                    'prettyPrint'=>true
-//                ]
-//            ]
-//        ],
-//        'errorHandler'=>[
-//            'class'=>JsonApiErrorHandler::class
-//        ],
+        'response' => [
+            'formatters'=>[
+                \yii\web\Response::FORMAT_JSON => [
+                    'class'=>JsonApiResponseFormatter::class,
+                    'prettyPrint'=>true
+                ]
+            ]
+        ],
+        'errorHandler'=>[
+            'class'=>JsonApiErrorHandler::class,
+            'validationErrorFormat' => JsonApiErrorHandler::ERROR_FORMAT_SPEC
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [

@@ -34,7 +34,7 @@ class JsonApiBootstrap implements BootstrapInterface
 
         $app->set('errorHandler', [
             'class'=>JsonApiErrorHandler::class,
-            'validationErrorFormat'=> JsonApiErrorHandler::ERROR_FORMAT_SPEC
+            'validationErrorFormat'=> JsonApiErrorHandler::ERROR_FORMAT_YII
         ]);
         $app->errorHandler->register();
     }

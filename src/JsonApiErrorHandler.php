@@ -45,7 +45,7 @@ class JsonApiErrorHandler extends ErrorHandler
      *          ]
      *     }
     **/
-    public $validationErrorFormat = self::ERROR_FORMAT_SPEC;
+    public $validationErrorFormat = self::ERROR_FORMAT_YII;
 
     protected function renderException($exception)
     {
