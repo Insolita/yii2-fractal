@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use insolita\fractal\DefaultTransformer;
@@ -8,6 +13,8 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
+use function call_user_func;
+use function is_callable;
 use function is_string;
 use function property_exists;
 
@@ -19,7 +26,7 @@ use function property_exists;
 trait HasResourceTransformer
 {
     /**
-     * @var \League\Fractal\TransformerAbstract
+     * @var \League\Fractal\TransformerAbstract|callable
      **/
     public $transformer;
 
@@ -39,6 +46,9 @@ trait HasResourceTransformer
         }
         if (is_string($this->transformer)) {
             $this->transformer = Yii::createObject($this->transformer);
+        }
+        if (is_callable($this->transformer)) {
+            $this->transformer = call_user_func($this->transformer);
         }
         if (!$this->transformer instanceof TransformerAbstract) {
             throw new InvalidConfigException('Transformer must be an instance of  \League\Fractal\TransformerAbstract');

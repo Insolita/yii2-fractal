@@ -1,8 +1,14 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use insolita\fractal\JsonApiController;
+use insolita\fractal\JsonApiError;
 use yii\base\Action;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
@@ -11,10 +17,10 @@ use yii\web\NotFoundHttpException;
 use function reset;
 
 /**
- * @property-read array       $requestedAttributes
- * @property-read null|string $requestedType
+ * @property-read array       $resourceAttributes
+ * @property-read null|string $resourceType
  * @property-read array       $queryFields
- * @property-read array       $requestData
+ * @property-read array       $resourceData
  * @property-read array       $includes
  */
 class JsonApiAction extends Action
@@ -86,9 +92,10 @@ class JsonApiAction extends Action
      */
     protected function findModel($id)
     {
+        $this->ensureIntOrString($id, 'id');
         if ($this->findModel !== null) {
             $model = call_user_func($this->findModel, $id, $this);
-            if(!$model) {
+            if (!$model) {
                 throw new NotFoundHttpException("Object not found: $id");
             }
             return $model;
@@ -130,5 +137,27 @@ class JsonApiAction extends Action
         }
 
         return $condition ?? [];
+    }
+
+    protected function ensureNullIntOrString($value, $name)
+    {
+        if (!\in_array(\gettype($value), ['integer', 'string', 'NULL'])) {
+            return new JsonApiError([
+                'code' => 422,
+                'title' =>'Invalid type of "'.$name.'"',
+                'detail' => 'Value should be null, integer, or string'
+            ]);
+        }
+    }
+
+    protected function ensureIntOrString($value, $name)
+    {
+        if (!\in_array(\gettype($value), ['integer', 'string'])) {
+            return new JsonApiError([
+                'code' => 422,
+                'title' =>'Invalid id',
+                'detail' => 'Value should be integer, or string'
+            ]);
+        }
     }
 }

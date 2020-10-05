@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
+
 namespace insolita\fractal;
 
 use insolita\fractal\providers\JsonApiDataProviderInterface;
@@ -82,9 +87,24 @@ class JsonApiController extends Controller
             $data = $data->toCollection();
         }
         if ($data instanceof Item || $data instanceof Collection) {
-            $data = $this->manager->createData($data)->toArray();
+            $resource = $data;
+            $data = $this->manager->createData($resource)->toArray();
             if (isset($data['data']) && !isset($data['links']) && !isset($data['data']['links'])) {
-                $data['links'] = ['self' => Url::current([], true)];
+                if ($resource->hasCursor() && isset($resource->getMeta()['cursor'])) {
+                    $cursor = $resource->getMetaValue('cursor');
+                    $params = ['cursor'=>$cursor['current']];
+                    if ($cursor['prev'] && $cursor['prev']!==$cursor['current']) {
+                        $params['previous'] = $cursor['prev'];
+                    }
+                    $data['link']['self'] = Url::current($params);
+                    if ($cursor['next'] !== null) {
+                        $data['link']['next'] = Url::current(
+                            ['cursor'=>$cursor['next'], 'previous'=>$cursor['current']]
+                        );
+                    }
+                } else {
+                    $data['links'] = ['self' => Url::current([], true)];
+                }
             }
         }
         return Yii::createObject($this->serializer)->serialize($data);

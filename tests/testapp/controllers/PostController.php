@@ -3,18 +3,21 @@
 namespace app\controllers;
 
 use app\models\Post;
-use app\transformers\CategoryTransformer;
 use app\transformers\PostTransformer;
 use insolita\fractal\actions\CreateAction;
+use insolita\fractal\actions\CreateRelationshipAction;
 use insolita\fractal\actions\DeleteAction;
+use insolita\fractal\actions\DeleteRelationshipAction;
 use insolita\fractal\actions\ListAction;
-use insolita\fractal\actions\ListRelationshipAction;
 use insolita\fractal\actions\UpdateAction;
+use insolita\fractal\actions\UpdateRelationshipAction;
 use insolita\fractal\actions\ViewAction;
+use insolita\fractal\actions\ViewRelationshipAction;
 use insolita\fractal\ActiveJsonApiController;
+use insolita\fractal\IdOnlyTransformer;
+use insolita\fractal\providers\CursorActiveDataProvider;
 use yii\base\DynamicModel;
 use yii\data\ActiveDataFilter;
-use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\ForbiddenHttpException;
@@ -111,14 +114,70 @@ class PostController extends ActiveJsonApiController
                return Post::find()->where(['category_id'=>$parentId, 'id' => $id])->one();
             }
         ];
-        $actions['relationships'] = [
-            'class' => ListRelationshipAction::class,
+        $actions['related-category'] = [
+            'class' => ViewRelationshipAction::class,
             'modelClass' => $this->modelClass,
-            'relationMap' => [
-                'author' => ['authors' => null],
-                'category' => ['categories' => CategoryTransformer::class],
-                'comments' => ['comments' => null],
-            ],
+            'relationName' => 'category',
+            'resourceKey'=>'categories'
+        ];
+        $actions['delete-related-category'] = [
+            'class' => DeleteRelationshipAction::class,
+            'modelClass' => $this->modelClass,
+            'relationName' => 'category'
+        ];
+        $actions['related-author'] = [
+            'class' => ViewRelationshipAction::class,
+            'modelClass' => $this->modelClass,
+            'relationName' => 'author',
+            'resourceKey'=>'users'
+        ];
+        $actions['related-comments'] = [
+            'class' => ViewRelationshipAction::class,
+            'modelClass' => $this->modelClass,
+            'relationName' => 'comments',
+            'resourceKey'=>'comments',
+            'transformer'=>IdOnlyTransformer::class,
+            'dataProvider'=>['class' => CursorActiveDataProvider::class]
+        ];
+        $actions['delete-related-comments'] = [
+            'class' => DeleteRelationshipAction::class,
+            'modelClass' => $this->modelClass,
+            'relationName' => 'comments'
+        ];
+        $actions['update-related-comments'] = [
+            'class' => UpdateRelationshipAction::class,
+            'modelClass' => $this->modelClass,
+            'relationName' => 'comments'
+        ];
+        $actions['create-related-comments'] = [
+            'class' => CreateRelationshipAction::class,
+            'modelClass' => $this->modelClass,
+            'relationName' => 'comments',
+            'resourceKey'=>'comments',
+            'transformer'=>IdOnlyTransformer::class,
+        ];
+
+        $actions['create2'] = [
+            'class' => CreateAction::class,
+            'modelClass' => $this->modelClass,
+            'resourceKey'=> $this->resourceKey,
+            'transformer'=> $this->transformer,
+            'checkAccess' => [$this, 'checkAccess'],
+            'scenario' => $this->createScenario,
+            'allowedRelations' => [
+                'comments' => ['idType' => 'integer']
+            ]
+        ];
+        $actions['update2'] = [
+            'class' => UpdateAction::class,
+            'modelClass' => $this->modelClass,
+            'resourceKey'=> $this->resourceKey,
+            'transformer'=> $this->transformer,
+            'checkAccess' => [$this, 'checkAccess'],
+            'scenario' => $this->updateScenario,
+            'allowedRelations' => [
+                'comments' => ['idType' => 'integer', 'unlinkOnly' => true]
+            ]
         ];
         return $actions;
     }

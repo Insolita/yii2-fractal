@@ -30,7 +30,7 @@ client.test("Response content-type is json", function() {
 });
 client.test("Check content", function() {
     client.assert(response.body.hasOwnProperty("errors"), "Cannot find 'errors' in response");
-    client.assert(response.body.errors[0].details === 'Response data is not followed JsonApi spec', 'invalid message');
+    client.assert(response.body.errors[0].detail === 'Response data is not followed JsonApi spec', 'invalid message');
 });
 %}
 
@@ -85,3 +85,21 @@ client.test("Ensure response data", function() {
     client.assert(response.body.hasOwnProperty("errors"), "Response must contains data object");
 });
 %}
+
+### Send media-types
+POST http://127.0.0.1:8400/media
+Content-Type: application/x-www-form-urlencoded
+
+{"data": {"type": "xxx"}}
+
+### Send media-types2
+POST http://127.0.0.1:8400/media
+Content-Type: multipart/form-data
+
+{"data": {"type": "xxx"}}
+
+### Send media-types3
+POST http://127.0.0.1:8400/media
+Content-Type: application/octet-stream
+
+xxxxxxxxxxxxxxxxxxx

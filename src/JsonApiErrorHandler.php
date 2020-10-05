@@ -92,7 +92,7 @@ class JsonApiErrorHandler extends ErrorHandler
             $error->code = $exception->getCode();
             $error->title = ($exception instanceof Exception || $exception instanceof ErrorException) ?
                $exception->getName() : 'Exception';
-            $error->details = $exception->getMessage();
+            $error->detail = $exception->getMessage();
         }
         if ($exception instanceof HttpException) {
             $error->status = $exception->statusCode;

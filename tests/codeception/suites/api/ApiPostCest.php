@@ -1,5 +1,8 @@
 <?php
 
+use app\models\Comment;
+use Codeception\Util\Debug;
+
 class ApiPostCest
 {
     public function testListHasDataWithRelationships(ApiTester $I)
@@ -252,5 +255,119 @@ class ApiPostCest
                 'attributes'=>['name'=>'Updated Title', 'category_id' =>2]
             ]
         ]);
+    }
+
+    public function testCreateWithLinkRelationship(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->amBearerAuthenticated('Delta_secret_token');
+        $id1 = $I->haveInDatabase(
+            'public.comments',
+            ['post_id'=>null, 'user_id' => 1, 'message' => 'Some comment', 'created_at'=>'2020-09-09 01:02:03']
+        );
+        $id2 = $I->haveInDatabase(
+            'public.comments',
+            ['post_id'=>null, 'user_id' => 2, 'message' => 'Some comment222', 'created_at'=>'2020-08-08 01:02:03']
+        );
+        $I->sendPOST('/posts2', [
+            'data'=>[
+                'type'=>'posts',
+                'attributes'=>[
+                    'name'=>'My post with linked comments',
+                    'body'=>'Bla-bla',
+                    'category_id' =>1
+                ], 'relationships'=>[
+                   'comments' => [
+                       ['id'=> $id1, 'type' => 'comments'],
+                       ['id'=> $id2, 'type' => 'comments'],
+                   ]
+                ]
+            ]
+        ]);
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseIsJsonApiResource();
+        $postId = $I->grabFromDatabase('public.posts', 'id', ['name' => 'My post with linked comments']);
+        $I->seeInDatabase('public.comments', ['post_id' => $postId, 'id' => $id1]);
+        $I->seeInDatabase('public.comments', ['post_id' => $postId, 'id' => $id2]);
+
+        $I->expect('Create with unsupported relation should throw error');
+        $I->sendPOST('/posts2', [
+            'data'=>[
+                'type'=>'posts',
+                'attributes'=>[
+                    'name'=>'My post with linked comments',
+                    'body'=>'Bla-bla'
+                ], 'relationships'=>[
+                    'author' => ['type' => 'author', 'id' =>2],
+                    'comments' => [
+                        ['id'=> $id1, 'type' => 'comments'],
+                        ['id'=> $id2, 'type' => 'comments'],
+                    ]
+                ]
+            ]
+        ]);
+        $I->seeResponseCodeIs(403);
+    }
+
+    public function testUpdateWithLinkRelationship(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->amBearerAuthenticated('Delta_secret_token');
+        $id1 = $I->haveInDatabase(
+            'public.comments',
+            ['post_id'=>null, 'user_id' => 1, 'message' => 'One comment', 'created_at'=>'2020-03-02 01:02:03']
+        );
+        $id2 = $I->haveInDatabase(
+            'public.comments',
+            ['post_id'=>null, 'user_id' => 2, 'message' => 'Second comment222', 'created_at'=>'2020-03-03 01:02:03']
+        );
+        $id3 = $I->haveInDatabase(
+            'public.comments',
+            ['post_id'=>null, 'user_id' => 3, 'message' => 'Third comment333', 'created_at'=>'2020-03-04 01:02:03']
+        );
+
+        $I->sendPATCH('/posts2/12', [
+            'data' => [
+                'type'=>'posts',
+                'attributes'=>[
+                    'name'=>'My changed post with linked comments',
+                ], 'relationships'=>[
+                    'comments' => [
+                        ['id'=> $id1, 'type' => 'comments'],
+                        ['id'=> $id2, 'type' => 'comments'],
+                    ]
+                ]
+            ]
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJsonApiResource();
+
+        $I->seeInDatabase('public.comments', ['post_id' => 12, 'id' => $id1]);
+        $I->seeInDatabase('public.comments', ['post_id' => 12, 'id' => $id2]);
+        $I->dontSeeInDatabase('public.comments', ['post_id' => 12, 'id' => $id3]);
+
+        $name = $I->grabFromDatabase('public.posts', 'name', ['id' => 12]);
+        $I->assertEquals('My changed post with linked comments', $name);
+        //$I->seeInDatabase('public.posts', ['id' => 12, 'name' => 'My changed post with linked comments']);
+
+        $name = $I->grabFromDatabase('public.posts', 'name', ['id' => 12]);
+        $I->wantToTest('Patch relationships without attributes should be ok');
+        $I->sendPATCH('/posts2/12', [
+            'data' => [
+                'type'=>'posts',
+                'attributes'=>[],
+                'relationships'=>[
+                    'comments' => [
+                        ['id'=> $id3, 'type' => 'comments'],
+                    ]
+                ]
+            ]
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJsonApiResource();
+        $I->seeInDatabase('public.posts', ['id' => 12, 'name' => $name]);
+        $I->dontSeeInDatabase('public.comments', ['post_id' => 12, 'id' => $id1]);
+        $I->dontSeeInDatabase('public.comments', ['post_id' => 12, 'id' => $id2]);
+        $I->seeInDatabase('public.comments', ['post_id' => 12, 'id' => $id3]);
     }
 }
