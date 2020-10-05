@@ -1,18 +1,7 @@
-<?php
-
-/**
- * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
- * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
- */
-
-/**
- * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
- * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
- */
+<?php /** @noinspection NullPointerExceptionInspection */
 
 namespace insolita\fractal;
 
-use insolita\fractal\exceptions\ValidationException;
 use Throwable;
 use Yii;
 use yii\base\NotSupportedException;
@@ -24,11 +13,9 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use function array_diff;
-use function array_map;
 use function count;
 use function gettype;
-use function in_array;
-use function reset;
+use function implode;
 
 /**
  * @see https://jsonapi.org/format/#crud-updating-to-one-relationships
@@ -67,10 +54,11 @@ class RelationshipManager
     /**
      * @return ActiveQueryInterface|\yii\db\ActiveQuery
      * @throws \Throwable
-     * @throws \insolita\fractal\exceptions\ValidationException
      * @throws \yii\base\NotSupportedException
      * @throws \yii\db\Exception
      * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\HttpException
+     * @throws \yii\web\NotFoundHttpException
      */
     public function attach()
     {
@@ -104,7 +92,7 @@ class RelationshipManager
         $forLinkModels = $relatedModelClass::find()->where([$pkAttribute => $forLink])->all();
         if (count($forLinkModels) !== count($forLink)) {
             throw new NotFoundHttpException(
-                'Records with ids '.\implode(',', array_diff($forLink, $forLinkModels)).' not found',
+                'Records with ids '. implode(',', array_diff($forLink, $forLinkModels)).' not found',
                 404
             );
         }
@@ -275,7 +263,12 @@ class RelationshipManager
         return $pk;
     }
 
-    protected function validateIdType(array $ids, bool $allowNull = false)
+    /**
+     * @param array $ids
+     * @param bool  $allowNull
+     * @throws \yii\web\HttpException
+     */
+    protected function validateIdType(array $ids, bool $allowNull = false):void
     {
         foreach ($ids as $id) {
             $type = gettype($id);
