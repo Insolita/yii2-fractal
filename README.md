@@ -25,9 +25,3 @@ With https://fractal.thephpleague.com
   - Run once `make installdocker`
   - Run `make testdocker` or `make cli` and inside docker env `make test`
   
-  
- ### NOTES
- TODO
- Currently, actions doesn't support relationships update like
- https://jsonapi.org/format/#crud-updating-to-one-relationships
- https://jsonapi.org/format/#crud-updating-to-many-relationships
