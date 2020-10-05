@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use Yii;
@@ -92,7 +97,7 @@ trait HasParentAttributes
         $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
         if ($this->findModelFor !== null) {
             $model = call_user_func($this->findModelFor, $id, $parentId, $this);
-            if(!$model) {
+            if (!$model) {
                 throw new NotFoundHttpException("Object not found: $id");
             }
             return $model;
