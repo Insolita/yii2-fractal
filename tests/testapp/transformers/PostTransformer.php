@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
+
 namespace app\transformers;
 
 use app\models\Comment;
@@ -25,9 +30,10 @@ class PostTransformer extends TransformerAbstract
     {
         $author = $post->author;
 
-        return $this->item($author, function(User $author){
-            return $author->getAttributes(['id', 'username', 'email', 'created_at']);
-        }, 'users') + ['links'=>['self'=>'/users/'.$author->id]];
+        return $this->item($author, function (User $author) {
+            return $author->getAttributes(['id', 'username', 'email', 'created_at'])
+                + ['links'=>['self'=>'/users/'.$author->id]];
+        }) ;
     }
 
 
@@ -41,7 +47,7 @@ class PostTransformer extends TransformerAbstract
     public function includeComments(Post $post, ParamBag $params = null):Collection
     {
         $comments = $post->comments;
-        return $this->collection($comments, function(Comment $comment) {
+        return $this->collection($comments, function (Comment $comment) {
             return $comment->getAttributes();
         }, 'comments');
     }

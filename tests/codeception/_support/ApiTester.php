@@ -81,12 +81,17 @@ class ApiTester extends \Codeception\Actor
 
     public function dontSeeResponseHasMeta()
     {
-        $this->seeResponseJsonMatchesJsonPath('$.meta');
+        $this->dontSeeResponseJsonMatchesJsonPath('$.meta');
     }
 
     public function seeResponseHasMetaPagination()
     {
         $this->seeResponseJsonMatchesJsonPath('$.meta.pagination');
+    }
+
+    public function seeResponseHasMetaCursor()
+    {
+        $this->seeResponseJsonMatchesJsonPath('$.meta.cursor');
     }
 
     public function dontSeeResponseHasMetaPagination()

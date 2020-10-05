@@ -8,7 +8,9 @@ use insolita\fractal\DefaultTransformer;
 use insolita\fractal\JsonApiController;
 use insolita\fractal\JsonApiError;
 use League\Fractal\Resource\Item;
+use Yii;
 use yii\base\NotSupportedException;
+use yii\helpers\VarDumper;
 use yii\web\ForbiddenHttpException;
 use function json_decode;
 
@@ -52,7 +54,7 @@ class DefaultController extends JsonApiController
 
     public function actionJsonError()
     {
-        return new JsonApiError(['title' => 'custom error', 'code' => 422, 'status' => 422, 'details' => 'Just for test']);
+        return new JsonApiError(['title' => 'custom error', 'code' => 422, 'status' => 422, 'detail' => 'Just for test']);
     }
 
     public function actionForbidden()
@@ -68,6 +70,12 @@ class DefaultController extends JsonApiController
     public function actionFatal()
     {
         return json_decode(['wrong']);
+    }
+
+    public function actionMedia()
+    {
+        Yii::warning(VarDumper::dumpAsString(Yii::$app->request->getRawBody()));
+        return null;
     }
 
 }

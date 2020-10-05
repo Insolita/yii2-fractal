@@ -45,6 +45,18 @@ Accept: application/vnd.api+json
 GET http://127.0.0.1:8400/category/3?fields[category]=name
 Accept: application/vnd.api+json
 
+### View
+GET http://127.0.0.1:8400/categories/1/relationships/posts?limit=5
+Accept: application/vnd.api+json
+
+### View
+GET http://127.0.0.1:8400/categories/1/relationships/posts?limit=5&cursor=5&previous=0
+Accept: application/vnd.api+json
+
+### View
+GET http://127.0.0.1:8400/categories/1/relationships/posts?limit=5&cursor=39&previous=22
+Accept: application/vnd.api+json
+
 ### View Options
 OPTIONS http://127.0.0.1:8400/category/3
 Accept: application/vnd.api+json
