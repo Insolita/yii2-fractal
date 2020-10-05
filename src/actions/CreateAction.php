@@ -1,19 +1,41 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use insolita\fractal\exceptions\ValidationException;
+use insolita\fractal\RelationshipManager;
 use League\Fractal\Resource\Item;
+use Throwable;
 use Yii;
 use yii\base\Model;
+use yii\db\ActiveRecordInterface;
 use yii\helpers\Url;
-use yii\web\ForbiddenHttpException;
 use yii\web\ServerErrorHttpException;
+use function array_keys;
 
 class CreateAction extends JsonApiAction
 {
     use HasResourceTransformer;
     use HasParentAttributes;
+    /**
+     * @var array
+     *  * Configuration for attaching relationships
+     * Should contains key - relation name and array with
+     *             idType - php type of resource ids for validation
+     * Keep it empty for disable this ability
+     * @see https://jsonapi.org/format/#crud-creating
+     * @example
+     *  'allowedRelations' => [
+     *       'author' => ['idType' => 'integer'],
+     *       'photos' => ['idType' => 'integer'],
+     * ]
+    **/
+    public $allowedRelations = [];
     /**
      * @var string the scenario to be assigned to the new model before it is validated and saved.
      */
@@ -37,17 +59,18 @@ class CreateAction extends JsonApiAction
     /**
      * Creates a new model.
      * @return \League\Fractal\Resource\ResourceInterface
+     * @throws \Throwable
      * @throws \insolita\fractal\exceptions\ValidationException
      * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\db\Exception
      * @throws \yii\web\ForbiddenHttpException
-     * @throws \yii\web\ServerErrorHttpException if there is any error when creating the model
+     * @throws \yii\web\HttpException
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\web\ServerErrorHttpException
      */
     public function run()
     {
-        if ($this->hasResourceRelationships()) {
-            /** @see https://jsonapi.org/format/#crud-updating-resource-relationships **/
-            throw new ForbiddenHttpException('Creating with relationships not supported yet');
-        }
         if ($this->checkAccess) {
             call_user_func($this->checkAccess, $this->id);
         }
@@ -56,6 +79,7 @@ class CreateAction extends JsonApiAction
         $model = new $this->modelClass([
             'scenario' => $this->scenario,
         ]);
+        RelationshipManager::validateRelationships($model, $this->getResourceRelationships(), $this->allowedRelations);
         $model->load($this->getResourceAttributes(), '');
         if ($this->isParentRestrictionRequired()) {
             $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
@@ -63,17 +87,52 @@ class CreateAction extends JsonApiAction
                 $model->setAttribute($this->parentIdAttribute, $parentId);
             }
         }
-        if ($model->save()) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(201);
-            $id = implode(',', array_values($model->getPrimaryKey(true)));
-            $response->getHeaders()->set('Location', Url::to([$this->viewRoute, 'id' => $id], true));
-        } elseif ($model->hasErrors()) {
-            throw new ValidationException($model->getErrors());
-        } else {
-            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
+        $transact = $model::getDb()->beginTransaction();
+        try {
+            if ($model->save() === false && !$model->hasErrors()) {
+                throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+            }
+            if ($model->hasErrors()) {
+                throw new ValidationException($model->getErrors());
+            }
+            if (!empty($this->allowedRelations) && $this->hasResourceRelationships()) {
+                $this->linkRelationships($model);
+            }
+            $transact->commit();
+        } catch (Throwable $e) {
+            $transact->rollback();
+            throw $e;
         }
 
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(201);
+        $response->getHeaders()->set('Location', Url::to([$this->viewRoute, 'id' => $model->primaryKey], true));
+
         return new Item($model, new $this->transformer, $this->resourceKey);
+    }
+
+    /**
+     * @param \yii\db\ActiveRecordInterface $model
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\db\Exception
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\HttpException
+     * @throws \yii\web\NotFoundHttpException
+     */
+    protected function linkRelationships(ActiveRecordInterface $model):void
+    {
+        $relationships = $this->getResourceRelationships();
+        $relationNames = array_keys($relationships);
+        foreach ($relationNames as $relationName) {
+            $manager = new RelationshipManager(
+                $model,
+                $relationName,
+                $relationships[$relationName],
+                $this->allowedRelations[$relationName]['idType']
+            );
+            $manager->attach();
+        }
     }
 }

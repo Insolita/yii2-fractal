@@ -1,4 +1,9 @@
-<?php /** @noinspection NullPointerExceptionInspection */
+<?php
+
+/**
+ * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
+ * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ */
 
 namespace insolita\fractal;
 
@@ -52,6 +57,7 @@ class RelationshipManager
     }
 
     /**
+     * Link new relationships to model
      * @return ActiveQueryInterface|\yii\db\ActiveQuery
      * @throws \Throwable
      * @throws \yii\base\NotSupportedException
@@ -276,6 +282,29 @@ class RelationshipManager
                 continue;
             }
             throw new HttpException(422, 'Data contains ids with invalid type');
+        }
+    }
+
+    /**
+     * @param \yii\db\ActiveRecord $model
+     * @param array                $relationships
+     * @param array                $allowed
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public static function validateRelationships(ActiveRecord $model, array $relationships, array $allowed): void
+    {
+        if (empty($relationships)) {
+            return;
+        }
+        if (empty($allowed)) {
+            throw new ForbiddenHttpException('Operations with relationships is not allowed');
+        }
+        $relationNames = array_keys($relationships);
+        foreach ($relationNames as $relationName) {
+            if (!array_key_exists($relationName, $allowed)) {
+                throw new ForbiddenHttpException('Operation with relationship "'.$relationName.'" is not allowed');
+            }
+            $model->getRelation($relationName);
         }
     }
 }

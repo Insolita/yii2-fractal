@@ -66,6 +66,15 @@ trait HasResourceBodyParams
     }
 
     /**
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected function getResourceRelationships():array
+    {
+        return $this->getResourceData()['relationships'] ?? [];
+    }
+
+    /**
      * @return bool
      * @throws \yii\base\InvalidConfigException
      */
