@@ -11,7 +11,7 @@ class JsonApiError extends BaseObject implements JsonSerializable
     public $status;
     public $code;
     public $title;
-    public $details;
+    public $detail;
     public $links;
     public $source;
     public $meta = [];
@@ -28,8 +28,8 @@ class JsonApiError extends BaseObject implements JsonSerializable
         if ($this->status) {
             $base['status'] = $this->status;
         }
-        if ($this->details) {
-            $base['details'] = $this->details;
+        if ($this->detail) {
+            $base['detail'] = $this->detail;
         }
         if ($this->links) {
             $base['links'] = $this->links;

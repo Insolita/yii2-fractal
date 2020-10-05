@@ -19,7 +19,7 @@ class ApiDefaultCest
         $I->seeContentTypeIsBySpec();
         $I->seeResponseCodeIsServerError();
         $I->seeResponseIsJsonApiError();
-        $I->seeResponseContainsJson(['details' => 'Response data is not followed JsonApi spec']);
+        $I->seeResponseContainsJson(['detail' => 'Response data is not followed JsonApi spec']);
     }
 
     public function testActionThatReturnString(ApiTester $I)
@@ -29,7 +29,7 @@ class ApiDefaultCest
         $I->seeContentTypeIsBySpec();
         $I->seeResponseCodeIsServerError();
         $I->seeResponseIsJsonApiError();
-        $I->seeResponseContainsJson(['details' => 'Response data is not followed JsonApi spec']);
+        $I->seeResponseContainsJson(['detail' => 'Response data is not followed JsonApi spec']);
     }
 
     public function testActionThatReturnModel(ApiTester $I)
@@ -39,7 +39,7 @@ class ApiDefaultCest
         $I->seeContentTypeIsBySpec();
         $I->seeResponseCodeIsServerError();
         $I->seeResponseIsJsonApiError();
-        $I->seeResponseContainsJson(['details' => 'Response data is not followed JsonApi spec']);
+        $I->seeResponseContainsJson(['detail' => 'Response data is not followed JsonApi spec']);
     }
 
     public function testActionThatReturnNull(ApiTester $I)
@@ -68,7 +68,7 @@ class ApiDefaultCest
         $I->seeContentTypeIsBySpec();
         $I->seeResponseCodeIs(422);
         $I->seeResponseIsJsonApiError();
-        $I->seeResponseContainsJson(['title' => 'custom error', 'details' => 'Just for test']);
+        $I->seeResponseContainsJson(['title' => 'custom error', 'detail' => 'Just for test']);
     }
 
     public function testForbiddenAction(ApiTester $I)
@@ -78,7 +78,7 @@ class ApiDefaultCest
         $I->seeResponseCodeIs(403);
         $I->seeResponseIsJsonApiError();
         $I->seeResponseHasMeta();
-        $I->seeResponseContainsJson(['title' => 'Forbidden', 'details' => 'Force thrown exception']);
+        $I->seeResponseContainsJson(['title' => 'Forbidden', 'detail' => 'Force thrown exception']);
         $I->seeResponseContainsJson(['meta' => ['error_type' => "yii\\web\\ForbiddenHttpException"]]);
     }
 
@@ -89,7 +89,7 @@ class ApiDefaultCest
         $I->seeResponseCodeIsServerError();
         $I->seeResponseIsJsonApiError();
         $I->seeResponseHasMeta();
-        $I->seeResponseContainsJson(['title' => 'Not Supported', 'details' => 'Force thrown exception']);
+        $I->seeResponseContainsJson(['title' => 'Not Supported', 'detail' => 'Force thrown exception']);
         $I->seeResponseContainsJson(['meta' => ['error_type' => "yii\\base\\NotSupportedException"]]);
     }
 
@@ -100,7 +100,7 @@ class ApiDefaultCest
         $I->seeResponseCodeIsServerError();
         $I->seeResponseIsJsonApiError();
         $I->seeResponseHasMeta();
-        $I->seeResponseContainsJson(['title' => 'PHP Warning', 'details' => 'json_decode() expects parameter 1 to be string, array given']);
+        $I->seeResponseContainsJson(['title' => 'PHP Warning', 'detail' => 'json_decode() expects parameter 1 to be string, array given']);
         $I->seeResponseContainsJson(['meta' => ['error_type' => "yii\\base\\ErrorException"]]);
     }
 }
