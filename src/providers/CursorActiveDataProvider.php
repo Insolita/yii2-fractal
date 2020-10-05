@@ -158,8 +158,8 @@ class CursorActiveDataProvider extends BaseDataProvider implements JsonApiDataPr
         $this->validateQuery();
         $query = clone $this->query;
         if (($pagination = $this->getPagination()) !== false) {
-            $pagination->setCount($this->getTotalCount());
-            if ($pagination->getCount() === 0) {
+            $pagination->setTotalCount($this->getTotalCount());
+            if ($pagination->getTotalCount() === 0) {
                 return [];
             }
             $query->limit($pagination->getLimit());

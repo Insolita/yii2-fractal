@@ -28,6 +28,9 @@ class CursorPagination extends BaseObject
     public $pageSizeLimit = [1, 100];
 
     private $nextCursor;
+    /**@var int count total items per query*/
+    private $totalCount;
+    /**@var int count items on current page*/
     private $itemsCount;
 
     public function getCurrentCursor():?int
@@ -50,7 +53,7 @@ class CursorPagination extends BaseObject
 
     public function getNextCursor():?int
     {
-        return $this->nextCursor;
+        return $this->itemsCount < $this->getLimit()? null : $this->nextCursor;
     }
 
     public function setNextCursor(?int $cursor):void
@@ -58,12 +61,17 @@ class CursorPagination extends BaseObject
         $this->nextCursor = $cursor;
     }
 
-    public function getCount(): int
+    public function getTotalCount(): int
     {
-        return $this->itemsCount;
+        return $this->totalCount;
     }
 
-    public function setCount(int $count): void
+    public function setTotalCount(int $count): void
+    {
+        $this->totalCount = $count;
+    }
+
+    public function setItemsCount(int $count): void
     {
         $this->itemsCount = $count;
     }
@@ -74,10 +82,10 @@ class CursorPagination extends BaseObject
         if ($limit && $limit < 1) {
             $limit = $this->defaultPageSize;
         }
-//        if (!empty($this->pageSizeLimit) && \is_array($this->pageSizeLimit) && \count($this->pageSizeLimit) === 2) {
-//            $limit = \max($limit, $this->pageSizeLimit[0]);
-//            $limit = \min($limit, $this->pageSizeLimit[1]);
-//        }
+        if (!empty($this->pageSizeLimit) && \is_array($this->pageSizeLimit) && \count($this->pageSizeLimit) === 2) {
+            $limit = \max($limit, $this->pageSizeLimit[0]);
+            $limit = \min($limit, $this->pageSizeLimit[1]);
+        }
         return $limit;
     }
 
@@ -89,7 +97,7 @@ class CursorPagination extends BaseObject
             $this->getCurrentCursor(),
             $this->getPreviousCursor(),
             $this->getNextCursor(),
-            $this->getCount()
+            $this->getTotalCount()
         );
     }
 }
