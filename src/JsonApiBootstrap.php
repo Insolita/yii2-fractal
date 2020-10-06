@@ -24,6 +24,7 @@ class JsonApiBootstrap implements BootstrapInterface
 
         $app->set('response', [
             'class' => Response::class,
+            'format' => \yii\web\Response::FORMAT_JSON,
             'formatters'=>[
                 \yii\web\Response::FORMAT_JSON => [
                     'class'=>JsonApiResponseFormatter::class,
