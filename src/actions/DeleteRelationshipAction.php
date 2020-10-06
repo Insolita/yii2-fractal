@@ -12,6 +12,7 @@ use Yii;
 
 /**
  * Unlink model relations
+ * Handler for routes DELETE /resource/{id}/relationships/{relationName}
 **/
 class DeleteRelationshipAction extends JsonApiAction
 {
@@ -43,6 +44,9 @@ class DeleteRelationshipAction extends JsonApiAction
     public function run($id):void
     {
         $model = $this->findModel($id);
+        if ($this->checkAccess) {
+            call_user_func($this->checkAccess, $this->id, $model);
+        }
         $manager = new RelationshipManager($model, $this->relationName, $this->getResourceData(), $this->pkType);
         $manager->delete($this->unlinkOnly);
         Yii::$app->response->setStatusCode(204);

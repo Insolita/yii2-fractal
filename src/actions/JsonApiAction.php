@@ -155,7 +155,7 @@ class JsonApiAction extends Action
         if (!\in_array(\gettype($value), ['integer', 'string'])) {
             return new JsonApiError([
                 'code' => 422,
-                'title' =>'Invalid id',
+                'title' =>'Invalid type of "'.$name.'"',
                 'detail' => 'Value should be integer, or string'
             ]);
         }

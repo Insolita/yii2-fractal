@@ -16,6 +16,9 @@ use yii\db\ActiveQueryInterface;
 use yii\helpers\Html;
 use yii\web\NotFoundHttpException;
 
+/**
+ * Handler for routes GET /resource/{id}/relationships/{relationName}
+**/
 class ViewRelationshipAction extends JsonApiAction
 {
     use HasResourceTransformer;

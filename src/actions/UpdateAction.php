@@ -16,6 +16,11 @@ use yii\base\Model;
 use yii\db\ActiveRecord;
 use yii\web\ServerErrorHttpException;
 
+/**
+ * Handler for routes PATCH /resource
+ * With defined parentIdParam and parentIdAttribute Handler for  PATCH /resource/{parentId}/relation/{id}, modelClass
+ * should be defined for related model for this case
+ **/
 class UpdateAction extends JsonApiAction
 {
     use HasResourceTransformer;

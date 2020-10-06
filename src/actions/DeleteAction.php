@@ -5,7 +5,11 @@ namespace insolita\fractal\actions;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\ServerErrorHttpException;
-
+/**
+ * Handler for routes DELETE /resource/{id}
+ *  With defined parentIdParam and parentIdAttribute Handler for  DELETE /resource/{parentId}/relation/{id} modelClass
+ * should be defined for related model for this case
+ **/
 class DeleteAction extends JsonApiAction
 {
     use HasParentAttributes;

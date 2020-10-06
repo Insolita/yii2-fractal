@@ -13,6 +13,7 @@ use yii\base\InvalidConfigException;
 
 /**
  * Sync relations for model
+ * Handler for routes PATCH /resource/{id}/relationships/{relationName}
 **/
 class UpdateRelationshipAction extends JsonApiAction
 {
@@ -55,6 +56,9 @@ class UpdateRelationshipAction extends JsonApiAction
     public function run($id):void
     {
         $model = $this->findModel($id);
+        if ($this->checkAccess) {
+            call_user_func($this->checkAccess, $this->id, $model);
+        }
         $manager = new RelationshipManager($model, $this->relationName, $this->getResourceData(), $this->pkType);
         $manager->patch($this->unlinkOnly);
         Yii::$app->response->setStatusCode(204);

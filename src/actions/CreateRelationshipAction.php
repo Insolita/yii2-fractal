@@ -17,6 +17,7 @@ use yii\db\ActiveQueryInterface;
 
 /**
  * Link model relations
+ * Handler for routes POST /resource/{id}/relationships/{relationName}
 **/
 class CreateRelationshipAction extends JsonApiAction
 {
@@ -60,6 +61,9 @@ class CreateRelationshipAction extends JsonApiAction
     public function run($id)
     {
         $model = $this->findModel($id);
+        if ($this->checkAccess) {
+            call_user_func($this->checkAccess, $this->id, $model);
+        }
         $manager = new RelationshipManager($model, $this->relationName, $this->getResourceData(), $this->pkType);
         $relation = $manager->attach();
         return $relation->multiple? $this->showHasOne($relation) : $this->showHasMany($relation);

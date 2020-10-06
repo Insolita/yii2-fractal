@@ -4,6 +4,11 @@ namespace insolita\fractal\actions;
 
 use League\Fractal\Resource\Item;
 
+/**
+ * Handler for routes GET /resource/{id}
+ * With defined parentIdParam and parentIdAttribute Handler for  GET /resource/{parentId}/relation/{id}, modelClass
+ * should be  defined for related model for this case
+ **/
 class ViewAction extends JsonApiAction
 {
     use HasResourceTransformer;

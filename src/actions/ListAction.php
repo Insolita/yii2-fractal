@@ -3,13 +3,20 @@
 namespace insolita\fractal\actions;
 
 use insolita\fractal\exceptions\ValidationException;
+use insolita\fractal\providers\CursorActiveDataProvider;
 use insolita\fractal\providers\JsonApiActiveDataProvider;
 use League\Fractal\TransformerAbstract;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
 use function array_intersect;
 use function array_merge;
 
+/**
+ * Handler for routes GET /resource
+ * With defined parentIdParam and parentIdAttribute Handler for  GET /resource/{id}/relation, modelClass should be
+ * defined for related model for this case
+ **/
 class ListAction extends JsonApiAction
 {
     use HasResourceTransformer;
@@ -17,6 +24,11 @@ class ListAction extends JsonApiAction
 
     /**
      * @var callable
+     * @example
+     * 'prepareDataProvider' => function(ListAction $action, DataFilter $filter) {
+     *      Should prepare query
+     *      and return completely configured dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider)
+     * }
     */
     public $prepareDataProvider;
 
@@ -24,6 +36,16 @@ class ListAction extends JsonApiAction
      * @var \yii\data\DataFilter
     */
     public $dataFilter;
+
+    /**
+     * Provide custom configured dataProvider object (JsonApiActiveDataProvider|CursorActiveDataProvider)
+     * You can set 'pagination' => false for disable pagination
+     * @var array
+     */
+    public $dataProvider = [
+        'class' => JsonApiActiveDataProvider::class,
+        'pagination'=>['defaultPageSize' => 20]
+    ];
 
     /**
      * @throws \yii\base\InvalidConfigException
@@ -134,14 +156,15 @@ class ListAction extends JsonApiAction
             $query->andWhere($filter);
         }
 
-        return  Yii::createObject([
-            'class' => JsonApiActiveDataProvider::class,
-            'query' => $query,
-            'resourceKey'=>$this->resourceKey,
-            'transformer'=>$this->transformer,
-            'sort' => [
-                'params' => $requestParams,
-            ],
-        ]);
+        $dataProvider = Yii::createObject($this->dataProvider);
+        if (!$dataProvider instanceof JsonApiActiveDataProvider && !$dataProvider instanceof CursorActiveDataProvider) {
+            throw new InvalidConfigException('Invalid dataProvider configuration');
+        }
+        $dataProvider->query = $query;
+        $dataProvider->resourceKey = $this->resourceKey;
+        $dataProvider->transformer = $this->transformer;
+        $dataProvider->setSort(['params' => $requestParams]);
+
+        return $dataProvider;
     }
 }

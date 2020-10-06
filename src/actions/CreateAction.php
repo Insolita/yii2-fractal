@@ -18,6 +18,11 @@ use yii\helpers\Url;
 use yii\web\ServerErrorHttpException;
 use function array_keys;
 
+/**
+ * Handler for routes POST /resource
+ * With defined parentIdParam and parentIdAttribute Handler for  POST /resource/{id}/relation, modelClass should be
+ * defined for related model for this case
+ **/
 class CreateAction extends JsonApiAction
 {
     use HasResourceTransformer;
