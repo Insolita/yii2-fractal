@@ -11,15 +11,18 @@ With https://fractal.thephpleague.com
 
 ### Usage
 
-1. Add in 'bootstrap' config  class insolita\fractal\JsonApiBootstrap of api application
-  (or update application config manually with same changes as in JsonApiBootstrap class )
-  see [tests/testapp/config/api.php]
+1. Add class `insolita\fractal\JsonApiBootstrap` to the ['bootstrap' section] of api application config
+   (or update application config manually with same changes as in `JsonApiBootstrap` class )
+   see [tests/testapp/config/api.php](./tests/testapp/config/api.php).
   
-2. Create your controller classes by extend JsonApiController or JsonApiActiveController which contains predefined
- CRUD actions
- see examples at [tests/testapp/controllers]
+2. Create your controller classes by extending `JsonApiController` or `JsonApiActiveController` which contains predefined
+   CRUD actions.
+   See examples at [tests/testapp/controllers](./tests/testapp/controllers).
+ 
+['bootstrap' section]: https://www.yiiframework.com/doc/guide/2.0/en/runtime-bootstrapping
  
  ### Testing
+ 
   - Clone project
   - Run `make up` 
   - Run once `make installdocker`
