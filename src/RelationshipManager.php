@@ -21,6 +21,7 @@ use function array_diff;
 use function count;
 use function gettype;
 use function implode;
+use function is_numeric;
 
 /**
  * @see https://jsonapi.org/format/#crud-updating-to-one-relationships
@@ -278,7 +279,9 @@ class RelationshipManager
     {
         foreach ($ids as $id) {
             $type = gettype($id);
-            if (($type === $this->idType) || ($allowNull && $type === 'NULL')) {
+            if (($this->idType === 'integer' && is_numeric($id))
+                ||($type === $this->idType)
+                || ($allowNull && $type === 'NULL')) {
                 continue;
             }
             throw new HttpException(422, 'Data contains ids with invalid type');
