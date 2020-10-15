@@ -1,10 +1,16 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2020 Insolita <webmaster100500@ya.ru> and contributors
+ * @license https://github.com/insolita/yii2-fractal/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\ServerErrorHttpException;
+
 /**
  * Handler for routes DELETE /resource/{id}
  *  With defined parentIdParam and parentIdAttribute Handler for  DELETE /resource/{parentId}/relation/{id} modelClass

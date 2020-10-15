@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
- * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ * @copyright Copyright (c) 2020 Insolita <webmaster100500@ya.ru> and contributors
+ * @license https://github.com/insolita/yii2-fractal/blob/master/LICENSE
  */
 
 namespace insolita\fractal;
