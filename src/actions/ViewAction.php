@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2020 Insolita <webmaster100500@ya.ru> and contributors
+ * @license https://github.com/insolita/yii2-fractal/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use League\Fractal\Resource\Item;
@@ -33,6 +38,7 @@ class ViewAction extends JsonApiAction
     public function run($id)
     {
         $model = $this->isParentRestrictionRequired() ? $this->findModelForParent($id) : $this->findModel($id);
+
 
         if ($this->checkAccess) {
             call_user_func($this->checkAccess, $this->id, $model);

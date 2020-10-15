@@ -1,16 +1,18 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2020 Insolita <webmaster100500@ya.ru> and contributors
+ * @license https://github.com/insolita/yii2-fractal/blob/master/LICENSE
+ */
+
 namespace insolita\fractal\actions;
 
 use insolita\fractal\exceptions\ValidationException;
 use insolita\fractal\providers\CursorActiveDataProvider;
 use insolita\fractal\providers\JsonApiActiveDataProvider;
-use League\Fractal\TransformerAbstract;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
-use function array_intersect;
-use function array_merge;
 
 /**
  * Handler for routes GET /resource
@@ -94,24 +96,6 @@ class ListAction extends JsonApiAction
     }
 
     /**
-     * Eager loading for included relations
-     * @param \yii\db\ActiveQueryInterface|\yii\db\ActiveQuery $query
-     * @return \yii\db\ActiveQueryInterface
-     */
-    protected function prepareIncludeQuery(ActiveQueryInterface  $query):ActiveQueryInterface
-    {
-        if (!$this->transformer instanceof TransformerAbstract) {
-            return $query;
-        }
-        $defaultIncludes = $this->transformer->getDefaultIncludes();
-        $allowedIncludes = $this->transformer->getAvailableIncludes();
-        $requestedIncludes = $this->controller->manager->getRequestedIncludes();
-        $include = array_merge($defaultIncludes, array_intersect($allowedIncludes, $requestedIncludes));
-        //@TODO: ?validate if included relations existed ?
-        return empty($include)? $query : $query->with($include);
-    }
-
-    /**
      * Add condition for parent model restriction if needed
      * @param \yii\db\ActiveQueryInterface $query
      * @return \yii\db\ActiveQueryInterface
@@ -148,9 +132,9 @@ class ListAction extends JsonApiAction
 
         /* @var $modelClass \yii\db\BaseActiveRecord */
         $modelClass = $this->modelClass;
+        $query = $this->prepareParentQuery($modelClass::find());
+        $query = $this->prepareIncludeQuery($query);
 
-        $query = $this->prepareIncludeQuery($modelClass::find());
-        $query = $this->prepareParentQuery($query);
 
         if (!empty($filter)) {
             $query->andWhere($filter);

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright Copyright (c) 2018 Carsten Brandt <mail@cebe.cc> and contributors
- * @license https://github.com/cebe/yii2-openapi/blob/master/LICENSE
+ * @copyright Copyright (c) 2020 Insolita <webmaster100500@ya.ru> and contributors
+ * @license https://github.com/insolita/yii2-fractal/blob/master/LICENSE
  */
 
 namespace insolita\fractal\actions;
@@ -26,6 +26,7 @@ use function reset;
 class JsonApiAction extends Action
 {
     use HasResourceBodyParams;
+    use HasIncludes;
     /**
      * @var \insolita\fractal\JsonApiController $controller
      */
@@ -106,8 +107,10 @@ class JsonApiAction extends Action
         $condition = $this->findModelCondition($id);
 
         if (!empty($condition)) {
-            $model = $modelClass::findOne($condition);
+            $query = $this->prepareIncludeQuery($modelClass::find());
+            $model = $query->where($condition)->limit(1)->one();
         }
+
 
         if (isset($model)) {
             return $model;
