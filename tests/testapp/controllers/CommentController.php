@@ -1,10 +1,10 @@
 <?php
 
-namespace testapp\controllers;
+namespace app\controllers;
 
 use app\models\Comment;
 use insolita\fractal\ActiveJsonApiController;
-use testapp\transformers\CommentTransformer;
+use app\transformers\CommentTransformer;
 
 class CommentController extends ActiveJsonApiController
 {

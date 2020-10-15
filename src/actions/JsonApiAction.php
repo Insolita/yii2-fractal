@@ -26,6 +26,7 @@ use function reset;
 class JsonApiAction extends Action
 {
     use HasResourceBodyParams;
+    use HasIncludes;
     /**
      * @var \insolita\fractal\JsonApiController $controller
      */
@@ -106,8 +107,10 @@ class JsonApiAction extends Action
         $condition = $this->findModelCondition($id);
 
         if (!empty($condition)) {
-            $model = $modelClass::findOne($condition);
+            $query = $this->prepareIncludeQuery($modelClass::find());
+            $model = $query->where($condition)->limit(1)->one();
         }
+
 
         if (isset($model)) {
             return $model;

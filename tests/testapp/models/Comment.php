@@ -52,11 +52,11 @@ class Comment extends ActiveRecord
 
     public function getUser()
     {
-        return $this->hasOne(User::class, ['user_id' => 'id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     public function getPost()
     {
-        return $this->hasOne(Post::class, ['post_id'=>'id']);
+        return $this->hasOne(Post::class, ['id'=>'post_id']);
     }
 }

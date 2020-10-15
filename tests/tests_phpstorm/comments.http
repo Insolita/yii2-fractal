@@ -1,0 +1,27 @@
+### Index
+GET http://127.0.0.1:8400/comments?page[size]=5
+Accept: application/vnd.api+json
+
+### Index with include
+GET http://127.0.0.1:8400/comments?page[size]=2&include=post
+Accept: application/vnd.api+json
+
+### Index with bad include
+GET http://127.0.0.1:8400/comments?page[size]=2&include=tags
+Accept: application/vnd.api+json
+
+### Index with include nested
+GET http://127.0.0.1:8400/comments?page[size]=2&include=post,post.author
+Accept: application/vnd.api+json
+
+### Index with bad nested include
+GET http://127.0.0.1:8400/comments?page[size]=2&include=post,post.tags
+Accept: application/vnd.api+json
+
+### View with include
+GET http://127.0.0.1:8400/comment/2?include=post
+Accept: application/vnd.api+json
+
+### View with include nested
+GET http://127.0.0.1:8400/comment/2?include=post.author,post.category
+Accept: application/vnd.api+json
