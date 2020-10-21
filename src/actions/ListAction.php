@@ -27,9 +27,9 @@ class ListAction extends JsonApiAction
     /**
      * @var callable
      * @example
-     * 'prepareDataProvider' => function(ListAction $action, DataFilter $filter) {
-     *      Should prepare query
-     *      and return completely configured dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider)
+     * 'prepareDataProvider' => function(ListAction $action, \yii\data\DataProviderInterface $dataProvider) {
+     *      Modify $dataProvider
+     *      or return completely configured dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider)
      * }
     */
     public $prepareDataProvider;
@@ -126,10 +126,6 @@ class ListAction extends JsonApiAction
         }
         $filter = $this->prepareDataFilter($requestParams);
 
-        if ($this->prepareDataProvider !== null) {
-            return call_user_func($this->prepareDataProvider, $this, $filter);
-        }
-
         /* @var $modelClass \yii\db\BaseActiveRecord */
         $modelClass = $this->modelClass;
         $query = $this->prepareParentQuery($modelClass::find());
@@ -148,6 +144,10 @@ class ListAction extends JsonApiAction
         $dataProvider->resourceKey = $this->resourceKey;
         $dataProvider->transformer = $this->transformer;
         $dataProvider->setSort(['params' => $requestParams]);
+
+        if ($this->prepareDataProvider !== null) {
+            return call_user_func($this->prepareDataProvider, $this, $dataProvider);
+        }
 
         return $dataProvider;
     }
