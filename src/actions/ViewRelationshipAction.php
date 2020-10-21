@@ -29,6 +29,17 @@ class ViewRelationshipAction extends JsonApiAction
      */
     public $relationName;
 
+    /**
+     * Modify dataProvider for 1-n relations
+     * @var callable
+     * @example
+     * 'prepareDataProvider' => function(ViewRelationshipAction $action, DataProviderInterface  $dataProvider) {
+     *      Modify $dataProvider
+     *      or return completely configured dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider)
+     * }
+     */
+    public $prepareDataProvider;
+
 
     /**
      * Provide supported dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider) with configuration
@@ -100,6 +111,10 @@ class ViewRelationshipAction extends JsonApiAction
         $dataProvider->resourceKey = $this->resourceKey;
         $dataProvider->transformer = $this->transformer;
         $dataProvider->setSort(['params' => Yii::$app->getRequest()->getQueryParams()]);
+
+        if ($this->prepareDataProvider !== null) {
+            return call_user_func($this->prepareDataProvider, $this, $dataProvider);
+        }
 
         return $dataProvider;
     }
