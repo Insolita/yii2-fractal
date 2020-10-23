@@ -106,7 +106,7 @@ class UpdateAction extends JsonApiAction
             $transact->rollBack();
             throw $e;
         }
-
+        $model->refresh();
         return new Item($model, new $this->transformer, $this->resourceKey);
     }
 

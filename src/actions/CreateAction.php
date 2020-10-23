@@ -108,7 +108,7 @@ class CreateAction extends JsonApiAction
             $transact->rollback();
             throw $e;
         }
-
+        $model->refresh();
         $response = Yii::$app->getResponse();
         $response->setStatusCode(201);
         $response->getHeaders()->set('Location', Url::to([$this->viewRoute, 'id' => $model->primaryKey], true));
