@@ -26,13 +26,23 @@ class JsonApiErrorHandler extends ErrorHandler
     /**
      * The way for format validation errors
      * 'yii' will return
+     *
+     * ```json
+     * {
+     *   "errors": [
      *     {
-     *         'errors': [
-     *                { 'attributeName1': ['error message1', ...]},
-     *                { 'attributeName2': ['error message1', ...]},
-     *          ]
-     *     }
+     *       "status": 422,
+     *       "detail": "Model validation failed.",
+     *       "meta": {
+     *         "attributeName1": ["error message1", ...],
+     *         "attributeName2": ["error message1", ...],
+     *       }
+     *   }
+     * ```
+     *
      * 'attr' will return
+
+     * ```json
      *     {
      *         'errors': [
      *                { 'attribute': 'attributeName', 'message': 'errorMessage1'},
@@ -40,8 +50,12 @@ class JsonApiErrorHandler extends ErrorHandler
      *                { 'attribute': 'attributeName2', 'message': 'errorMessage'},
      *          ]
      *     }
+     * ```
+     *
      * 'spec' will return accordingly json api example
      *  @see https://jsonapi.org/examples/#error-objects-multiple-errors
+     *
+     * ```json
      *     {
      *         'errors': [
      *                { 'status': '422', 'source': {'attribute': 'attributeName'}, 'detail': 'errorMessage1'},
@@ -49,8 +63,10 @@ class JsonApiErrorHandler extends ErrorHandler
      *                { 'status': '422', 'source': {'attribute': 'attributeName2'}, 'detail': 'errorMessage'},
      *          ]
      *     }
-    **/
+     * ```
+     */
     public $validationErrorFormat = self::ERROR_FORMAT_YII;
+
 
     protected function renderException($exception)
     {
@@ -87,10 +103,7 @@ class JsonApiErrorHandler extends ErrorHandler
             $exception = new HttpException(500, Yii::t('yii', 'An internal server error occurred.'));
         }
         if ($exception instanceof ValidationException) {
-            return [
-                'meta'=>['type'=>'Validation Errors'],
-                'errors'=>$this->handleValidationErrors($exception->getErrors())
-            ];
+            return $this->handleValidationErrors($exception->getErrors());
         }
         $error = new JsonApiError();
         if ($exception instanceof \Exception) {
@@ -121,7 +134,15 @@ class JsonApiErrorHandler extends ErrorHandler
     private function handleValidationErrors(array $errors)
     {
         if ($this->validationErrorFormat === self::ERROR_FORMAT_YII) {
-            return [$errors];
+            return [
+                'errors' => [
+                    [
+                        'status' => 422,
+                        'detail' => 'Model validation failed.',
+                        'meta' => $errors,
+                    ],
+                ]
+            ];
         }
         $formattedErrors = [];
         foreach ($errors as $attr => $messages) {
@@ -130,6 +151,9 @@ class JsonApiErrorHandler extends ErrorHandler
                 $formattedErrors[] = $error;
             }
         }
-        return $formattedErrors;
+        return [
+            'meta'=>['type'=>'Validation Errors'],
+            'errors' => $formattedErrors,
+        ];
     }
 }
