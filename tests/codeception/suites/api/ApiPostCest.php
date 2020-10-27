@@ -278,8 +278,10 @@ class ApiPostCest
                     'category_id' =>1
                 ], 'relationships'=>[
                    'comments' => [
-                       ['id'=> $id1, 'type' => 'comments'],
-                       ['id'=> $id2, 'type' => 'comments'],
+                       'data' => [
+                           ['id'=> $id1, 'type' => 'comments'],
+                           ['id'=> $id2, 'type' => 'comments'],
+                       ]
                    ]
                 ]
             ]
@@ -300,8 +302,10 @@ class ApiPostCest
                 ], 'relationships'=>[
                     'author' => ['type' => 'author', 'id' =>2],
                     'comments' => [
-                        ['id'=> $id1, 'type' => 'comments'],
-                        ['id'=> $id2, 'type' => 'comments'],
+                        'data' => [
+                            ['id'=> $id1, 'type' => 'comments'],
+                            ['id'=> $id2, 'type' => 'comments'],
+                        ]
                     ]
                 ]
             ]
@@ -333,8 +337,10 @@ class ApiPostCest
                     'name'=>'My changed post with linked comments',
                 ], 'relationships'=>[
                     'comments' => [
-                        ['id'=> $id1, 'type' => 'comments'],
-                        ['id'=> $id2, 'type' => 'comments'],
+                       'data' => [
+                           ['id'=> $id1, 'type' => 'comments'],
+                           ['id'=> $id2, 'type' => 'comments'],
+                       ]
                     ]
                 ]
             ]
@@ -358,7 +364,9 @@ class ApiPostCest
                 'attributes'=>[],
                 'relationships'=>[
                     'comments' => [
-                        ['id'=> $id3, 'type' => 'comments'],
+                        'data' => [
+                            ['id'=> $id3, 'type' => 'comments'],
+                        ]
                     ]
                 ]
             ]
