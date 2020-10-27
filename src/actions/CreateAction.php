@@ -134,7 +134,7 @@ class CreateAction extends JsonApiAction
             $manager = new RelationshipManager(
                 $model,
                 $relationName,
-                $relationships[$relationName],
+                $relationships[$relationName]['data'],
                 $this->allowedRelations[$relationName]['idType']
             );
             $manager->attach();
