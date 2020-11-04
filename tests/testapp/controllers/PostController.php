@@ -28,6 +28,8 @@ use yii\data\ActiveDataFilter;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\ForbiddenHttpException;
+use const SORT_ASC;
+use const SORT_DESC;
 
 class PostController extends ActiveJsonApiController
 {
@@ -195,6 +197,10 @@ class PostController extends ActiveJsonApiController
             'prepareDataProvider' => function ($action, JsonApiActiveDataProvider $dp) {
                 $dp->query->joinWith(['category category'])
                           ->select(['posts.*', 'category.id as cid', 'category.name as cat']);
+                $dp->sort->addAttributes([
+                    'category.name',
+                    'category.id'=>['asc' =>['category.id' => SORT_ASC], 'desc' => ['category.id' => SORT_DESC]]
+                ]);
                 return $dp;
             },
         ];
