@@ -14,6 +14,8 @@ use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
 use yii\web\NotFoundHttpException;
+use function gettype;
+use function in_array;
 use function reset;
 
 /**
@@ -27,6 +29,7 @@ class JsonApiAction extends Action
 {
     use HasResourceBodyParams;
     use HasIncludes;
+
     /**
      * @var \insolita\fractal\JsonApiController $controller
      */
@@ -38,6 +41,7 @@ class JsonApiAction extends Action
      * This property must be set.
      */
     public $modelClass;
+
     /**
      * @var callable a PHP callable that will be called to return the model corresponding
      * to the specified primary key value. If not set, [[findModel()]] will be used instead.
@@ -111,12 +115,18 @@ class JsonApiAction extends Action
             $model = $query->where($condition)->limit(1)->one();
         }
 
-
         if (isset($model)) {
             return $model;
         }
 
         throw new NotFoundHttpException("Object not found: $id");
+    }
+
+    protected function modelTable():string
+    {
+        /**@var ActiveRecordInterface $modelClass */
+        $modelClass = $this->modelClass;
+        return $modelClass::tableName();
     }
 
     /**
@@ -136,7 +146,7 @@ class JsonApiAction extends Action
             }
         } elseif ($id !== null) {
             $idKey = reset($keys);
-            $condition = [$idKey => $id];
+            $condition = [$this->modelTable().'.'.$idKey => $id];
         }
 
         return $condition ?? [];
@@ -144,22 +154,22 @@ class JsonApiAction extends Action
 
     protected function ensureNullIntOrString($value, $name)
     {
-        if (!\in_array(\gettype($value), ['integer', 'string', 'NULL'])) {
+        if (!in_array(gettype($value), ['integer', 'string', 'NULL'])) {
             return new JsonApiError([
                 'code' => 422,
-                'title' =>'Invalid type of "'.$name.'"',
-                'detail' => 'Value should be null, integer, or string'
+                'title' => 'Invalid type of "' . $name . '"',
+                'detail' => 'Value should be null, integer, or string',
             ]);
         }
     }
 
     protected function ensureIntOrString($value, $name)
     {
-        if (!\in_array(\gettype($value), ['integer', 'string'])) {
+        if (!in_array(gettype($value), ['integer', 'string'])) {
             return new JsonApiError([
                 'code' => 422,
-                'title' =>'Invalid type of "'.$name.'"',
-                'detail' => 'Value should be integer, or string'
+                'title' => 'Invalid type of "' . $name . '"',
+                'detail' => 'Value should be integer, or string',
             ]);
         }
     }

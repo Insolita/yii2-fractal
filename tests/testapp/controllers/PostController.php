@@ -1,9 +1,15 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2020 Insolita <webmaster100500@ya.ru> and contributors
+ * @license https://github.com/insolita/yii2-fractal/blob/master/LICENSE
+ */
+
 namespace app\controllers;
 
 use app\models\Post;
 use app\transformers\PostTransformer;
+use app\transformers\PostWithRelationsTransformer;
 use insolita\fractal\actions\CreateAction;
 use insolita\fractal\actions\CreateRelationshipAction;
 use insolita\fractal\actions\DeleteAction;
@@ -16,6 +22,7 @@ use insolita\fractal\actions\ViewRelationshipAction;
 use insolita\fractal\ActiveJsonApiController;
 use insolita\fractal\IdOnlyTransformer;
 use insolita\fractal\providers\CursorActiveDataProvider;
+use insolita\fractal\providers\JsonApiActiveDataProvider;
 use yii\base\DynamicModel;
 use yii\data\ActiveDataFilter;
 use yii\filters\auth\CompositeAuth;
@@ -33,12 +40,12 @@ class PostController extends ActiveJsonApiController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator']=[
+        $behaviors['authenticator'] = [
             'class' => CompositeAuth::class,
-            'only'=>['create-for-category', 'update-for-category'],
-            'authMethods'=>[
+            'only' => ['create-for-category', 'update-for-category'],
+            'authMethods' => [
                 HttpBearerAuth::class,
-            ]
+            ],
         ];
         return $behaviors;
     }
@@ -48,7 +55,7 @@ class PostController extends ActiveJsonApiController
         $actions = parent::actions();
         $actions['list']['dataFilter'] = [
             'class' => ActiveDataFilter::class,
-            'searchModel' => function() {
+            'searchModel' => function () {
                 return (new DynamicModel(['name' => null, 'category_id' => null, 'author_id' => null]))
                     ->addRule('category_id', 'integer')
                     ->addRule('author_id', 'integer')
@@ -110,74 +117,101 @@ class PostController extends ActiveJsonApiController
             'checkAccess' => [$this, 'checkAccess'],
             'parentIdParam' => 'categoryId',
             'parentIdAttribute' => 'category_id',
-            'findModelFor'=>function($id, $parentId) {
-               return Post::find()->where(['category_id'=>$parentId, 'id' => $id])->one();
-            }
+            'findModelFor' => function ($id, $parentId) {
+                return Post::find()->where(['category_id' => $parentId, 'id' => $id])->one();
+            },
         ];
         $actions['related-category'] = [
             'class' => ViewRelationshipAction::class,
             'modelClass' => $this->modelClass,
             'relationName' => 'category',
-            'resourceKey'=>'categories'
+            'resourceKey' => 'categories',
         ];
         $actions['delete-related-category'] = [
             'class' => DeleteRelationshipAction::class,
             'modelClass' => $this->modelClass,
-            'relationName' => 'category'
+            'relationName' => 'category',
         ];
         $actions['related-author'] = [
             'class' => ViewRelationshipAction::class,
             'modelClass' => $this->modelClass,
             'relationName' => 'author',
-            'resourceKey'=>'users'
+            'resourceKey' => 'users',
         ];
         $actions['related-comments'] = [
             'class' => ViewRelationshipAction::class,
             'modelClass' => $this->modelClass,
             'relationName' => 'comments',
-            'resourceKey'=>'comments',
-            'transformer'=>IdOnlyTransformer::class,
-            'dataProvider'=>['class' => CursorActiveDataProvider::class]
+            'resourceKey' => 'comments',
+            'transformer' => IdOnlyTransformer::class,
+            'dataProvider' => ['class' => CursorActiveDataProvider::class],
         ];
         $actions['delete-related-comments'] = [
             'class' => DeleteRelationshipAction::class,
             'modelClass' => $this->modelClass,
-            'relationName' => 'comments'
+            'relationName' => 'comments',
         ];
         $actions['update-related-comments'] = [
             'class' => UpdateRelationshipAction::class,
             'modelClass' => $this->modelClass,
-            'relationName' => 'comments'
+            'relationName' => 'comments',
         ];
         $actions['create-related-comments'] = [
             'class' => CreateRelationshipAction::class,
             'modelClass' => $this->modelClass,
             'relationName' => 'comments',
-            'resourceKey'=>'comments',
-            'transformer'=>IdOnlyTransformer::class,
+            'resourceKey' => 'comments',
+            'transformer' => IdOnlyTransformer::class,
         ];
 
         $actions['create2'] = [
             'class' => CreateAction::class,
             'modelClass' => $this->modelClass,
-            'resourceKey'=> $this->resourceKey,
-            'transformer'=> $this->transformer,
+            'resourceKey' => $this->resourceKey,
+            'transformer' => $this->transformer,
             'checkAccess' => [$this, 'checkAccess'],
             'scenario' => $this->createScenario,
             'allowedRelations' => [
-                'comments' => ['idType' => 'integer']
-            ]
+                'comments' => ['idType' => 'integer'],
+            ],
         ];
         $actions['update2'] = [
             'class' => UpdateAction::class,
             'modelClass' => $this->modelClass,
-            'resourceKey'=> $this->resourceKey,
-            'transformer'=> $this->transformer,
+            'resourceKey' => $this->resourceKey,
+            'transformer' => $this->transformer,
             'checkAccess' => [$this, 'checkAccess'],
             'scenario' => $this->updateScenario,
             'allowedRelations' => [
-                'comments' => ['idType' => 'integer', 'unlinkOnly' => true]
-            ]
+                'comments' => ['idType' => 'integer', 'unlinkOnly' => true],
+            ],
+        ];
+        $actions['list-with-join'] = [
+            'class' => ListAction::class,
+            'modelClass' => $this->modelClass,
+            'resourceKey' => $this->resourceKey,
+            'transformer' => $this->transformer,
+            'checkAccess' => [$this, 'checkAccess'],
+            'prepareDataProvider' => function ($action, JsonApiActiveDataProvider $dp) {
+                $dp->query->joinWith(['category category'])
+                          ->select(['posts.*', 'category.id as cid', 'category.name as cat']);
+                return $dp;
+            },
+        ];
+
+        $actions['list-parent-with-join'] = [
+            'class' => ListAction::class,
+            'modelClass' => $this->modelClass,
+            'resourceKey' => $this->resourceKey,
+            'transformer' => $this->transformer,
+            'checkAccess' => [$this, 'checkAccess'],
+            'parentIdParam' => 'id',
+            'parentIdAttribute' => 'category_id',
+            'prepareDataProvider' => function ($action, JsonApiActiveDataProvider $dp) {
+                $dp->query->joinWith(['category category', 'comments'])
+                          ->addSelect(['posts.*', 'category.*', 'comments.*']);
+                return $dp;
+            },
         ];
         return $actions;
     }

@@ -108,11 +108,11 @@ trait HasParentAttributes
 
         if ($this->parentIdParam === 'id') {
             $id = $id ?? Yii::$app->request->getQueryParam('id', null);
-            $model = $modelClass::findOne([$this->parentIdAttribute => $id]);
+            $model = $modelClass::find()->where([$this->modelTable().'.'.$this->parentIdAttribute => $id])->limit(1)->one();
         } else {
             $condition = $this->findModelCondition($id);
-            $condition[$this->parentIdAttribute] = $parentId;
-            $model = $modelClass::findOne($condition);
+            $condition[$this->modelTable().'.'.$this->parentIdAttribute] = $parentId;
+            $model = $modelClass::find()->where($condition)->limit(1)->one();
         }
 
         if (isset($model)) {

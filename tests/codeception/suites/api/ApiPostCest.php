@@ -130,6 +130,31 @@ class ApiPostCest
         $I->assertEquals([1, 1, 1, 1, 1], $authors);
     }
 
+    public function testListWithJoins(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->sendGET('/posts-join', ['sort'=>'-category.name', 'include'=>['category']]);
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeContentTypeIsBySpec();
+        $I->seeResponseIsJsonApiCollection();
+        $I->seeResponseHasMetaPagination();
+        $I->seeResponseContainsJson([
+            'pagination'=>['total' => 54, 'count'=>20, 'per_page'=>20, 'current_page'=>1, 'total_pages'=>3]
+        ]);
+    }
+
+    public function testListForCategoryWithJoins(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->sendGET('/categories/3/posts-join', ['page'=>['size' => 5], 'sort'=>'-comments.id']);
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeContentTypeIsBySpec();
+        $I->seeResponseIsJsonApiCollection();
+        $I->seeResponseHasMetaPagination();
+        $categories = $I->grabDataFromResponseByJsonPath('$.data[*].attributes.category_id');
+        $I->assertEquals([3, 3, 3, 3, 3], $categories);
+    }
+
     public function testListForCategory(ApiTester $I)
     {
         $I->haveValidContentType();
@@ -146,6 +171,7 @@ class ApiPostCest
     {
         $I->haveValidContentType();
         $I->sendGET('/categories/3/posts/1');
+
         $I->seeResponseCodeIs(404);
     }
 

@@ -13,6 +13,12 @@ use insolita\fractal\providers\JsonApiActiveDataProvider;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
+use yii\helpers\StringHelper;
+use function array_map;
+use function explode;
+use function implode;
+use function ltrim;
+use function strpos;
 
 /**
  * Handler for routes GET /resource
@@ -108,10 +114,11 @@ class ListAction extends JsonApiAction
         $id = Yii::$app->request->getQueryParam('id', null);
         $condition = ($this->parentIdParam !== 'id')? $this->findModelCondition($id): [];
         $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
-        $condition[$this->parentIdAttribute] = $parentId;
+        $condition[$this->modelTable().'.'.$this->parentIdAttribute] = $parentId;
         $query->where($condition);
         return $query;
     }
+
 
     /**
      * @return JsonApiActiveDataProvider|object

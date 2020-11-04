@@ -86,6 +86,7 @@ return [
 
                 'GET,HEAD /users/<id:\d+>/posts' => 'post/list-for-user',
                 'GET,HEAD /categories/<id:\d+>/posts' => 'post/list-for-category',
+                'GET,HEAD /categories/<id:\d+>/posts-join' => 'post/list-parent-with-join',
                 'GET,HEAD /categories/<id:\d+>/relationships/posts' => 'category/related-posts',
                 'POST /categories/<categoryId:\d+>/posts' => 'post/create-for-category',
                 'GET /categories/<categoryId:\d+>/posts/<id:\d+>' => 'post/view-for-category',
@@ -93,6 +94,7 @@ return [
                 'DELETE /categories/<categoryId:\d+>/posts/<id:\d+>' => 'post/delete-for-category',
                 'OPTIONS /posts' => 'post/options',
                 'GET,HEAD /posts' => 'post/list',
+                'GET,HEAD /posts-join' => 'post/list-with-join',
                 'GET,HEAD /comments' => 'comment/list',
                 'POST /posts' => 'post/create',
                 'POST /posts2' => 'post/create2',
