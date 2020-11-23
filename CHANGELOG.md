@@ -4,3 +4,6 @@
   
 1.2.2 
   - add support for joinWith queries;
+  
+1.2.3
+  - provide before run and after run action events

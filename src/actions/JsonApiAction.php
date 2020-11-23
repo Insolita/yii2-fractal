@@ -30,6 +30,9 @@ class JsonApiAction extends Action
     use HasResourceBodyParams;
     use HasIncludes;
 
+    public const EVENT_BEFORE_RUN = 'beforeRunJsonApiAction';
+    public const EVENT_AFTER_RUN = 'afterRunJsonApiAction';
+
     /**
      * @var \insolita\fractal\JsonApiController $controller
      */
@@ -83,6 +86,18 @@ class JsonApiAction extends Action
         if ($this->modelClass === null) {
             throw new InvalidConfigException(get_class($this) . '::$modelClass must be set.');
         }
+    }
+
+    public function beforeRun()
+    {
+        $this->trigger(static::EVENT_BEFORE_RUN);
+        return parent::beforeRun();
+    }
+
+    public function afterRun()
+    {
+        $this->trigger(static::EVENT_AFTER_RUN);
+        parent::afterRun();
     }
 
     /**
