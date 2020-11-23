@@ -13,6 +13,7 @@ use function is_array;
 trait HasResourceBodyParams
 {
     protected $resourceData;
+
     /**
      * @return array
      * @throws \yii\base\InvalidConfigException
@@ -25,11 +26,16 @@ trait HasResourceBodyParams
         return $this->resourceData;
     }
 
+    protected function getResourceMeta():array
+    {
+        return Yii::$app->getRequest()->getBodyParams()['meta'] ?? [];
+    }
+
     /**
      * @return bool
      * @throws \yii\base\InvalidConfigException
      */
-    protected function isCollectionResource(): bool
+    protected function isCollectionResource():bool
     {
         return !empty($this->getResourceData()) && is_array($this->getResourceData());
     }
@@ -38,7 +44,7 @@ trait HasResourceBodyParams
      * @return bool
      * @throws \yii\base\InvalidConfigException
      */
-    protected function isSingleResource(): bool
+    protected function isSingleResource():bool
     {
         return !$this->isCollectionResource();
     }
