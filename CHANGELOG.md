@@ -7,3 +7,7 @@
   
 1.2.3
   - provide before run and after run action events
+  
+1.2.4
+ - Add a callback for validate ids to (create/update/delete)Relationships actions
+ - fix IdOnlyTransformer

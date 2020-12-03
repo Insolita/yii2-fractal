@@ -29,6 +29,21 @@ class UpdateRelationshipAction extends JsonApiAction
     public $relationName;
 
     /**
+     * Custom callback for validate ids. It accept founded model and array of ids as parameter and must throw exception,
+     * when data not valid
+     * @example
+     * 'idValidateCallback' => function($model, array $ids) {
+     *       foreach($ids as $id) {
+     *          if($id < 5 or $id > 15) {
+     *              throw new ValidationException(422, 'Wrong ids');
+     *          }
+     *     }
+     * }
+     * @var callable
+     */
+    public $idValidateCallback;
+
+    /**
      * If true -existed relations will be unlinked, but related models will be untouched
      * If false, current related models will be removed also
      */
@@ -60,6 +75,9 @@ class UpdateRelationshipAction extends JsonApiAction
             call_user_func($this->checkAccess, $this->id, $model);
         }
         $manager = new RelationshipManager($model, $this->relationName, $this->getResourceData(), $this->pkType);
+        if ($this->idValidateCallback !== null) {
+            $manager->setIdValidateCallback($this->idValidateCallback);
+        }
         $manager->patch($this->unlinkOnly);
         Yii::$app->response->setStatusCode(204);
     }

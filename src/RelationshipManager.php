@@ -49,6 +49,11 @@ class RelationshipManager
      */
     private $idType;
 
+    /**
+     * @var callable
+     */
+    private $idValidateCallback;
+
     public function __construct(ActiveRecordInterface $model, string $relationName, ?array $data, string $idType = 'integer')
     {
         $this->model = $model;
@@ -88,7 +93,12 @@ class RelationshipManager
         if (empty($ids)) {
             throw new HttpException(422, 'Missing ids for create relationship');
         }
-        $this->validateIdType($ids, false);
+        if ($this->idValidateCallback !== null) {
+            $this->idValidateCallback($this->model, $ids);
+        } else {
+            $this->validateIdType($ids, false);
+        }
+
 
         $pkAttribute = $this->resolvePkAttribute($relation);
         $alreadyRelatedIds = $relation->select($pkAttribute)->column();
@@ -139,7 +149,11 @@ class RelationshipManager
         }
 
         $ids = ArrayHelper::getColumn($this->data, 'id');
-        $this->validateIdType($ids, false);
+        if ($this->idValidateCallback !== null) {
+            $this->idValidateCallback($this->model, $ids);
+        } else {
+            $this->validateIdType($ids, false);
+        }
         $records = $relation->where([$this->resolvePkAttribute($relation) => $ids])->all();
         $recordIds = ArrayHelper::getColumn($records, 'id');
         if (count($recordIds) !== count($ids)) {
@@ -189,7 +203,11 @@ class RelationshipManager
         if (empty($ids)) {
             throw new HttpException(422, 'Missing ids for update relationship');
         }
-        $this->validateIdType($ids, false);
+        if ($this->idValidateCallback !== null) {
+            $this->idValidateCallback($this->model, $ids);
+        } else {
+            $this->validateIdType($ids, false);
+        }
         $pkAttribute = $this->resolvePkAttribute($relation);
         $alreadyRelatedIds = $relation->select($pkAttribute)->column();
         $forUnlink = array_diff($alreadyRelatedIds, $ids);
@@ -219,6 +237,16 @@ class RelationshipManager
     }
 
     /**
+     * @param mixed $idValidateCallback
+     * @return RelationshipManager
+     */
+    public function setIdValidateCallback($idValidateCallback)
+    {
+        $this->idValidateCallback = $idValidateCallback;
+        return $this;
+    }
+
+    /**
      * @param \yii\db\ActiveQueryInterface $relation
      * @param bool                         $unlinkOnly
      * @throws \yii\web\NotFoundHttpException
@@ -227,7 +255,13 @@ class RelationshipManager
     protected function patchSingle(ActiveQueryInterface $relation, bool $unlinkOnly):void
     {
         $newRelationId = $this->data['id'] ?? null;
-        $this->validateIdType([$newRelationId], true);
+
+        if ($this->idValidateCallback !== null) {
+            $this->idValidateCallback($this->model, [$newRelationId]);
+        } else {
+            $this->validateIdType([$newRelationId], true);
+        }
+
         $relatedModel = $relation->one();
         if (!$newRelationId && $relatedModel) {
             $this->model->unlink($this->relationName, $relatedModel, !$unlinkOnly);

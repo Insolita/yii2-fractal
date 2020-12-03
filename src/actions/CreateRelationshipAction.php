@@ -34,6 +34,21 @@ class CreateRelationshipAction extends JsonApiAction
     public $relationName;
 
     /**
+     * Custom callback for validate ids. It accept founded model and array of ids as parameter and must throw exception,
+     * when data not valid
+     * @example
+     * 'idValidateCallback' => function($model, array $ids) {
+     *       foreach($ids as $id) {
+     *          if($id < 5 or $id > 15) {
+     *              throw new ValidationException(422, 'Wrong ids');
+     *          }
+     *     }
+     * }
+     * @var callable
+    */
+    public $idValidateCallback;
+
+    /**
      * Provide supported dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider) with configuration
      * (It make sense only for hasMany relationships)
      * You can set 'pagination' => false for disable pagination
@@ -65,6 +80,9 @@ class CreateRelationshipAction extends JsonApiAction
             call_user_func($this->checkAccess, $this->id, $model);
         }
         $manager = new RelationshipManager($model, $this->relationName, $this->getResourceData(), $this->pkType);
+        if ($this->idValidateCallback !== null) {
+            $manager->setIdValidateCallback($this->idValidateCallback);
+        }
         $relation = $manager->attach();
         return $relation->multiple? $this->showHasOne($relation) : $this->showHasMany($relation);
     }
