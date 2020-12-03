@@ -8,7 +8,7 @@
 namespace insolita\fractal;
 
 use League\Fractal\TransformerAbstract;
-use yii\base\Model;
+use yii\helpers\ArrayHelper;
 
 /**
  * The dummy transformer implementation that returns only data ids
@@ -17,6 +17,7 @@ class IdOnlyTransformer extends TransformerAbstract
 {
     public function transform($data)
     {
-        return isset($data['id']) ? ['id' => $data['id']]: [];
+        $data = ArrayHelper::toArray($data);
+        return isset($data['id']) ? ['id' => $data['id']]: ['id' => '0'];
     }
 }
