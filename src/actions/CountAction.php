@@ -8,53 +8,49 @@
 namespace insolita\fractal\actions;
 
 use insolita\fractal\exceptions\ValidationException;
-use insolita\fractal\pagination\JsonApiPaginator;
-use insolita\fractal\providers\CursorActiveDataProvider;
 use insolita\fractal\providers\JsonApiActiveDataProvider;
 use Yii;
-use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
-use yii\helpers\StringHelper;
-use function array_map;
-use function explode;
-use function implode;
-use function ltrim;
-use function strpos;
 
 /**
- * Handler for routes GET /resource
- * With defined parentIdParam and parentIdAttribute Handler for  GET /resource/{id}/relation, modelClass should be
- * defined for related model for this case
- **/
-class ListAction extends JsonApiAction
+ * Provide ability for count resource items without data loading
+ * (with filters support)
+ * Return header X-Pagination-Total-Count  with count value  (Use with HEAD request)
+ * @example
+ *  count posts
+ *  Post::find()->where([...filter condition])->count();
+ *  'count' => [
+ *     'class' => CountAction::class,
+ *     'modelClass' => Post::class,
+ *     'dataFilter' => PostDataFilter::class
+ *  ],
+ *  count posts for category (for example by route /category/<id:d+>/post-count)
+ *  Post::find()->where(['category_id' => Yii::$app->request->get('id')])->andWhere([...filter condition])->count();
+ *  'count-for-category' => [
+ *     'class' => CountAction::class,
+ *     'modelClass' => Post::class,
+ *     'parentIdAttribute' => 'category_id',
+ *     'parentIdParam' => 'id'
+ *  ]
+**/
+class CountAction extends JsonApiAction
 {
-    use HasResourceTransformer;
     use HasParentAttributes;
 
     /**
      * @var callable
      * @example
-     * 'prepareDataProvider' => function(ListAction $action, \yii\data\DataProviderInterface $dataProvider) {
-     *      Modify $dataProvider
-     *      or return completely configured dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider)
+     * 'queryWrapper' => function(CountAction $action, ActiveQuery Query) {
+     *      Modify $query
+     *      or return own ActiveQuery
      * }
-    */
-    public $prepareDataProvider;
+     */
+    public $queryWrapper;
 
     /**
      * @var \yii\data\DataFilter
-    */
-    public $dataFilter;
-
-    /**
-     * Provide custom configured dataProvider object (JsonApiActiveDataProvider|CursorActiveDataProvider)
-     * You can set 'pagination' => false for disable pagination
-     * @var array
      */
-    public $dataProvider = [
-        'class' => JsonApiActiveDataProvider::class,
-        'pagination'=>['defaultPageSize' => 20]
-    ];
+    public $dataFilter;
 
     /**
      * @throws \yii\base\InvalidConfigException
@@ -62,7 +58,6 @@ class ListAction extends JsonApiAction
     public function init():void
     {
         parent::init();
-        $this->initResourceTransformer();
         $this->validateParentAttributes();
     }
 
@@ -77,11 +72,13 @@ class ListAction extends JsonApiAction
             call_user_func($this->checkAccess, $this->id);
         }
 
-        $dataProvider = $this->makeDataProvider();
-        if (Yii::$app->request->isHead && $dataProvider->pagination !== false) {
-            $dataProvider->fillHeaders(Yii::$app->response->headers);
+        $query =  $this->makeQuery();
+        if ($this->queryWrapper !== null) {
+            $query = \call_user_func($this->queryWrapper, $this, $query);
         }
-        return $dataProvider;
+        $count = $query->count();
+        Yii::$app->response->headers->set('X-Pagination-Total-Count', $count);
+        Yii::$app->response->setStatusCode(204);
     }
 
     /**
@@ -130,7 +127,7 @@ class ListAction extends JsonApiAction
      * @throws \insolita\fractal\exceptions\ValidationException
      * @throws \yii\base\InvalidConfigException
      */
-    protected function makeDataProvider()
+    protected function makeQuery()
     {
         $requestParams = Yii::$app->getRequest()->getBodyParams();
         if (empty($requestParams)) {
@@ -143,24 +140,9 @@ class ListAction extends JsonApiAction
         $query = $this->prepareParentQuery($modelClass::find());
         $query = $this->prepareIncludeQuery($query);
 
-
         if (!empty($filter)) {
             $query->andWhere($filter);
         }
-
-        $dataProvider = Yii::createObject($this->dataProvider);
-        if (!$dataProvider instanceof JsonApiActiveDataProvider && !$dataProvider instanceof CursorActiveDataProvider) {
-            throw new InvalidConfigException('Invalid dataProvider configuration');
-        }
-        $dataProvider->query = $query;
-        $dataProvider->resourceKey = $this->resourceKey;
-        $dataProvider->transformer = $this->transformer;
-        $dataProvider->setSort(['params' => $requestParams]);
-
-        if ($this->prepareDataProvider !== null) {
-            return call_user_func($this->prepareDataProvider, $this, $dataProvider);
-        }
-
-        return $dataProvider;
+        return $query;
     }
 }

@@ -2,13 +2,21 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
+use app\models\Post;
+use app\transformers\CommentTransformer;
+use app\transformers\PostShortTransformer;
+use insolita\fractal\actions\ListForIdentityAction;
+use insolita\fractal\actions\ViewForIdentityAction;
 use insolita\fractal\JsonApiController;
 use League\Fractal\Resource\Item;
 use app\transformers\UserExtendTransformer;
 use app\transformers\UserTransformer;
 use Yii;
+use yii\db\ActiveQuery;
 use yii\filters\AccessControl;
 use yii\filters\auth\HttpBearerAuth;
+use const SORT_DESC;
 
 class MeController extends JsonApiController
 {
@@ -25,6 +33,33 @@ class MeController extends JsonApiController
             HttpBearerAuth::class
         ];
         return $behaviors;
+    }
+
+    public function actions()
+    {
+        return [
+            'my-posts' => [
+                'class' => ListForIdentityAction::class,
+                'userIdAttribute' => 'author_id',
+                'modelClass' => Post::class,
+                'transformer' => PostShortTransformer::class
+            ],
+            'my-last-comment' =>  [
+                'class' => ViewForIdentityAction::class,
+                'userIdAttribute' => 'user_id',
+                'modelClass' => Comment::class,
+                'transformer' => CommentTransformer::class,
+                'queryWrapper' => function(ActiveQuery $query) {
+                    return $query->orderBy(['created_at' => SORT_DESC]);
+                }
+            ],
+            'my-comment' => [
+                'class' => ViewForIdentityAction::class,
+                'userIdAttribute' => 'user_id',
+                'modelClass' => Comment::class,
+                'transformer' => CommentTransformer::class,
+            ]
+        ];
     }
 
     public function actionInfo()

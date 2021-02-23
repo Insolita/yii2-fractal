@@ -10,6 +10,7 @@ namespace app\controllers;
 use app\models\Post;
 use app\transformers\PostTransformer;
 use app\transformers\PostWithRelationsTransformer;
+use insolita\fractal\actions\CountAction;
 use insolita\fractal\actions\CreateAction;
 use insolita\fractal\actions\CreateRelationshipAction;
 use insolita\fractal\actions\DeleteAction;
@@ -218,6 +219,23 @@ class PostController extends ActiveJsonApiController
                           ->addSelect(['posts.*', 'category.*', 'comments.*']);
                 return $dp;
             },
+        ];
+        $actions['count'] = [
+            'class' => CountAction::class,
+            'modelClass' => $this->modelClass,
+            'dataFilter' => [
+                'class' => ActiveDataFilter::class,
+                'searchModel' => function () {
+                    return (new DynamicModel(['category_id' => null]))
+                        ->addRule('category_id', 'integer');
+                },
+            ]
+        ];
+        $actions['count-for-category'] = [
+            'class' => CountAction::class,
+            'modelClass' => $this->modelClass,
+            'parentIdAttribute' => 'category_id',
+            'parentIdParam' => 'id'
         ];
         return $actions;
     }

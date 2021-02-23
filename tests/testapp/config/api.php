@@ -82,6 +82,8 @@ return [
                 'POST,PUT,PATCH /media' => '/default/media',
                 'GET,HEAD /me' => 'me/info',
                 'GET,HEAD /me/details' => 'me/details',
+                'GET,HEAD /me/last-comment' => 'me/my-last-comment',
+                'GET,HEAD /me/comment/<id:\d+>' => 'me/my-comment',
                 'GET,HEAD /default/<action:[\w-]+>' => 'default/<action>',
 
                 'GET,HEAD /users/<id:\d+>/posts' => 'post/list-for-user',
@@ -96,6 +98,8 @@ return [
                 'GET,HEAD /posts' => 'post/list',
                 'GET,HEAD /posts-join' => 'post/list-with-join',
                 'GET,HEAD /comments' => 'comment/list',
+                'HEAD /post/count' => 'post/count',
+                'HEAD /categories/<id:\d+>/posts-count' => 'post/count-for-category',
                 'POST /posts' => 'post/create',
                 'POST /posts2' => 'post/create2',
                 'POST /comments' => 'comment/create',

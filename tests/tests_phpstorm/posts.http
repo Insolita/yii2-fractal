@@ -14,8 +14,16 @@ Accept: application/vnd.api+json
 GET http://127.0.0.1:8400/posts?include=category&filter[category_id][neq]=1&filter[author_id][eq]=1
 Accept: application/vnd.api+json
 
+### Index filtered
+HEAD http://127.0.0.1:8400/posts?include=category&filter[category_id][neq]=1&filter[author_id][eq]=1
+Accept: application/vnd.api+json
+
 ### Index paged
 GET http://127.0.0.1:8400/posts?page[size]=10&page[number]=5
+Accept: application/vnd.api+json
+
+### Index paged
+HEAD http://127.0.0.1:8400/posts?page[size]=10&page[number]=5
 Accept: application/vnd.api+json
 
 ### Index with fields
@@ -60,6 +68,10 @@ Accept: application/vnd.api+json
 
 ### View fields, include
 GET http://127.0.0.1:8400/posts/43?fields[posts]=name,category_id,author_id&include=author,category
+Accept: application/vnd.api+json
+
+### View fields, include
+HEAD http://127.0.0.1:8400/posts/43?fields[posts]=name,category_id,author_id&include=author,category
 Accept: application/vnd.api+json
 
 ### Create
@@ -166,8 +178,17 @@ Content-Type: application/vnd.api+json
 GET http://127.0.0.1:8400/posts/12/relationships/comments
 Accept: application/vnd.api+json
 
+### Relationships comments
+HEAD http://127.0.0.1:8400/posts/12/relationships/comments
+Accept: application/vnd.api+json
+
 ### GET comments
 GET http://127.0.0.1:8400/comments
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+### HEAD comments
+HEAD http://127.0.0.1:8400/comments
 Content-Type: application/vnd.api+json
 Accept: application/vnd.api+json
 
@@ -230,3 +251,13 @@ Accept: application/vnd.api+json
         {"id": [2], "type":  "comments"}
     ]
 }
+
+### Count posts
+HEAD http://127.0.0.1:8400/post/count
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+### Count posts for category
+HEAD http://127.0.0.1:8400/categories/4/posts-count
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json

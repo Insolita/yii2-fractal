@@ -8,29 +8,33 @@
 namespace insolita\fractal\actions;
 
 use insolita\fractal\exceptions\ValidationException;
-use insolita\fractal\pagination\JsonApiPaginator;
 use insolita\fractal\providers\CursorActiveDataProvider;
 use insolita\fractal\providers\JsonApiActiveDataProvider;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
-use yii\helpers\StringHelper;
-use function array_map;
-use function explode;
-use function implode;
-use function ltrim;
-use function strpos;
 
 /**
- * Handler for routes GET /resource
- * With defined parentIdParam and parentIdAttribute Handler for  GET /resource/{id}/relation, modelClass should be
- * defined for related model for this case
- **/
-class ListAction extends JsonApiAction
+ * Handler for list actions with parent id equals current user identity
+ * @example
+ * show user posts
+ *  $dataProvider by query Post::find()->where(['author_id' => Yii::$app->user->id])->... + filter conditions
+ * 'my-posts' => [
+ *       'class' => ListForIdentityAction::class,
+ *       'userIdAttribute' => 'author_id',
+ *       'modelClass' => Post::class,
+ *       'transformer' => PostTransformer::class
+ *  ],
+**/
+class ListForIdentityAction extends JsonApiAction
 {
     use HasResourceTransformer;
-    use HasParentAttributes;
 
+    /**
+     * @var string
+     * user foreign key attribute
+    */
+    public $userIdAttribute = 'user_id';
     /**
      * @var callable
      * @example
@@ -38,12 +42,12 @@ class ListAction extends JsonApiAction
      *      Modify $dataProvider
      *      or return completely configured dataProvider (JsonApiActiveDataProvider|CursorActiveDataProvider)
      * }
-    */
+     */
     public $prepareDataProvider;
 
     /**
      * @var \yii\data\DataFilter
-    */
+     */
     public $dataFilter;
 
     /**
@@ -63,7 +67,6 @@ class ListAction extends JsonApiAction
     {
         parent::init();
         $this->initResourceTransformer();
-        $this->validateParentAttributes();
     }
 
     /**
@@ -77,11 +80,7 @@ class ListAction extends JsonApiAction
             call_user_func($this->checkAccess, $this->id);
         }
 
-        $dataProvider = $this->makeDataProvider();
-        if (Yii::$app->request->isHead && $dataProvider->pagination !== false) {
-            $dataProvider->fillHeaders(Yii::$app->response->headers);
-        }
-        return $dataProvider;
+        return $this->makeDataProvider();
     }
 
     /**
@@ -113,13 +112,8 @@ class ListAction extends JsonApiAction
      */
     protected function prepareParentQuery(ActiveQueryInterface $query):ActiveQueryInterface
     {
-        if (!$this->isParentRestrictionRequired()) {
-            return $query;
-        }
-        $id = Yii::$app->request->getQueryParam('id', null);
-        $condition = ($this->parentIdParam !== 'id')? $this->findModelCondition($id): [];
-        $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
-        $condition[$this->modelTable().'.'.$this->parentIdAttribute] = $parentId;
+        $userId = Yii::$app->user->id;
+        $condition[$this->modelTable().'.'.$this->userIdAttribute] = $userId;
         $query->where($condition);
         return $query;
     }

@@ -89,8 +89,6 @@ class CursorPagination extends BaseObject
         return $limit;
     }
 
-
-
     public function toFractalCursor(): Cursor
     {
         return new Cursor(

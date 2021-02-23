@@ -19,6 +19,7 @@ use yii\data\BaseDataProvider;
 use yii\db\ActiveQueryInterface;
 use yii\db\Connection;
 use yii\di\Instance;
+use yii\web\HeaderCollection;
 use function max;
 
 class CursorActiveDataProvider extends BaseDataProvider implements JsonApiDataProviderInterface
@@ -67,6 +68,19 @@ class CursorActiveDataProvider extends BaseDataProvider implements JsonApiDataPr
             $resource->setCursor($paginator->toFractalCursor());
         }
         return $resource;
+    }
+
+    public function fillHeaders(HeaderCollection $headers):void
+    {
+        $paginator = $this->getPagination();
+        if ($paginator !== false) {
+            $nextCursor = !empty($this->getKeys()) ? max($this->getKeys()) : null;
+            $paginator->setNextCursor($nextCursor);
+        }
+        $headers->set('X-Pagination-Total-Count', $this->getTotalCount())
+                ->set('X-Pagination-Next-Cursor', $paginator->getNextCursor())
+                ->set('X-Pagination-Current-Cursor', $paginator->getCurrentCursor())
+                ->set('X-Pagination-Previous-Cursor', $paginator->getPreviousCursor());
     }
 
     /**

@@ -58,4 +58,62 @@ class ApiUserCest
         ]);
 
     }
+
+    public function testMyPostsListAction(ApiTester  $I)
+    {
+        $I->haveValidContentType();
+        $I->amBearerAuthenticated('Alpha_secret_token');
+        $I->sendGET('/me/my-posts');
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeContentTypeIsBySpec();
+        $I->seeResponseIsJsonApiCollection();
+        $I->seeResponseContainsJson([
+            'data'=>[
+                'type'=>'posts',
+                'id' => '1',
+                'attributes' => ['author_id' => 1]
+            ]
+        ]);
+    }
+
+    public function testMyLastCommentAction(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->amBearerAuthenticated('Gamma_secret_token');
+        $I->sendGET('/me/last-comment');
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeContentTypeIsBySpec();
+        $I->seeResponseIsJsonApiResource();
+        $I->seeResponseContainsJson([
+            'data'=>[
+                'type'=>'comments',
+                'id' => '111',
+                'attributes' => ['user_id' => 3, 'message' => 'Last comment for 3 user']
+            ]
+        ]);
+    }
+
+    public function testMyCommentAction(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->amBearerAuthenticated('Gamma_secret_token');
+        $I->sendGET('/me/comment/109');
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeContentTypeIsBySpec();
+        $I->seeResponseIsJsonApiResource();
+        $I->seeResponseContainsJson([
+            'data'=>[
+                'type'=>'comments',
+                'id' => '109',
+                'attributes' => [
+                    'user_id' => 3,
+                    'message' => 'Previous comment for 3 user'
+                ]
+            ]
+        ]);
+
+        $I->sendGET('/me/comment/110');
+        $I->seeResponseCodeIs(404);
+    }
+
 }

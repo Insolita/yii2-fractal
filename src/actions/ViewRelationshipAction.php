@@ -7,6 +7,7 @@
 
 namespace insolita\fractal\actions;
 
+use insolita\fractal\pagination\JsonApiPaginator;
 use insolita\fractal\providers\CursorActiveDataProvider;
 use insolita\fractal\providers\JsonApiActiveDataProvider;
 use League\Fractal\Resource\Item;
@@ -82,8 +83,14 @@ class ViewRelationshipAction extends JsonApiAction
         if (!$relation) {
             throw new NotFoundHttpException('Relation ' . Html::encode($this->relationName) . ' not found');
         }
-
-        return $relation->multiple ? $this->resolveHasMany($relation) : $this->resolveHasOne($relation);
+        if ($relation->multiple) {
+            $dataProvider = $this->resolveHasMany($relation);
+            if (Yii::$app->request->isHead && $dataProvider->pagination !== false) {
+                $dataProvider->fillHeaders(Yii::$app->response->headers);
+            }
+            return $dataProvider;
+        }
+        return $this->resolveHasOne($relation);
     }
 
     /**

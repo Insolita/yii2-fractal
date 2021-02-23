@@ -755,21 +755,13 @@ INSERT INTO public.comments VALUES (108, 2, 53, 'Placeat sit porro ut alias volu
 Est praesentium dolor eos quis occaecati. Nisi quod odio voluptatem possimus consequatur eveniet. Dolorem ex corrupti fugiat facere quas. Nihil rerum maxime corrupti iusto velit ut eaque hic.
 
 Voluptas repudiandae delectus harum eum vero. Omnis tempora aliquid distinctio corporis ducimus. Enim omnis est dolore.', '2011-03-10 18:20:56');
-INSERT INTO public.comments VALUES (109, 3, 53, 'Doloribus tenetur odit deleniti aut. Incidunt corrupti et est itaque repellendus tempora. Praesentium atque vero ex sit facilis et nesciunt.
-
-Odio consequuntur rerum fugiat debitis aperiam vel molestiae. Repellendus impedit dolorem quos qui.
-
-Quia qui at beatae. Aut mollitia sed saepe fuga. Asperiores eum quibusdam voluptatem libero.', '2016-10-05 05:39:40');
+INSERT INTO public.comments VALUES (109, 3, 53, 'Previous comment for 3 user', '2021-02-22 05:39:40');
 INSERT INTO public.comments VALUES (110, 2, 54, 'Natus laudantium et dolor voluptates recusandae quas omnis. Excepturi corrupti repellat quos veniam quisquam quos sed. Molestiae dolorem nam aliquam corrupti et ipsum porro. Reprehenderit aut animi consectetur quam debitis.
 
 Quam ut possimus dolores aut. Et est perferendis ut pariatur vitae. Qui vel illum velit odit sit dolorum voluptatum. Voluptatem atque architecto et eum eos.
 
 Ut et voluptas minima et. Omnis vitae quia nihil nulla aut a. Dolor voluptatem ad repellendus earum quos.', '2017-01-19 19:44:44');
-INSERT INTO public.comments VALUES (111, 3, 54, 'Quis qui voluptatum voluptatem totam dolor officiis. Corrupti enim facilis maxime quia quos saepe. Ipsam aut autem facere placeat. Nihil sunt aut excepturi ullam officia voluptatum nobis.
-
-Aliquam rerum modi et. Molestiae nulla mollitia eveniet odit eveniet. Delectus voluptates animi ut et. Molestias sequi quia occaecati dignissimos. Sit nulla sapiente iure doloremque nesciunt.
-
-Et corporis officiis officiis consequuntur. Ea ad nihil aut maxime ut aut quia nostrum. Recusandae mollitia ut possimus unde veniam architecto. Tempora suscipit est repellendus recusandae.', '2013-06-02 22:30:42');
+INSERT INTO public.comments VALUES (111, 3, 54, 'Last comment for 3 user', '2021-02-22 22:30:42');
 
 
 --

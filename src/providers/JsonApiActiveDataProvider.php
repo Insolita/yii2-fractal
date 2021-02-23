@@ -16,6 +16,7 @@ use yii\base\InvalidArgumentException;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQueryInterface;
+use yii\web\HeaderCollection;
 use const SORT_ASC;
 use const SORT_DESC;
 
@@ -28,7 +29,7 @@ class JsonApiActiveDataProvider extends ActiveDataProvider implements JsonApiDat
 
     private $_pagination;
 
-    /**@var \insolita\fractal\providers\JsonApiSort $_sort*/
+    /**@var \insolita\fractal\providers\JsonApiSort $_sort */
     private $_sort;
 
     public function init():void
@@ -137,5 +138,17 @@ class JsonApiActiveDataProvider extends ActiveDataProvider implements JsonApiDat
             $resource->setPaginator($this->getPagination());
         }
         return $resource;
+    }
+
+    public function fillHeaders(HeaderCollection $headers):void
+    {
+        $paginator = $this->getPagination();
+        if ($paginator !== false) {
+            $paginator->setItemsCount($this->getCount());
+        }
+        $headers->set('X-Pagination-Total-Count', $this->getTotalCount())
+                ->set('X-Pagination-Page-Count', $paginator->getPageCount())
+                ->set('X-Pagination-Current-Page', $paginator->getPage())
+                ->set('X-Pagination-Per-Page', $paginator->getPageSize());
     }
 }
