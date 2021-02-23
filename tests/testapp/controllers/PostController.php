@@ -226,8 +226,9 @@ class PostController extends ActiveJsonApiController
             'dataFilter' => [
                 'class' => ActiveDataFilter::class,
                 'searchModel' => function () {
-                    return (new DynamicModel(['category_id' => null]))
-                        ->addRule('category_id', 'integer');
+                    return (new DynamicModel(['category_id' => null, 'author_id' => null]))
+                        ->addRule('category_id', 'integer')
+                        ->addRule('author_id', 'integer');
                 },
             ]
         ];

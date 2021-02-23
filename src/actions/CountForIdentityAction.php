@@ -13,29 +13,26 @@ use Yii;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Provide ability for count resource items without data loading
+ * Provide ability for count resource items without data loading related to current user identity
  * (with filters support)
  * Return header X-Pagination-Total-Count  with count value  (Use with HEAD request)
  * @example
  *  count posts
- *  Post::find()->where([...filter condition])->count();
+ *  Post::find()->where(['author_id' => Yii::$app->userId])->andWhere([...filter condition])->count();
  *  'count' => [
  *     'class' => CountAction::class,
  *     'modelClass' => Post::class,
- *     'dataFilter' => PostDataFilter::class
+ *     'dataFilter' => PostDataFilter::class,
+ *     'userIdAttribute' => 'author_id'
  *  ],
- *  count posts for category (for example by route /category/<id:d+>/post-count)
- *  Post::find()->where(['category_id' => Yii::$app->request->get('id')])->andWhere([...filter condition])->count();
- *  'count-for-category' => [
- *     'class' => CountAction::class,
- *     'modelClass' => Post::class,
- *     'parentIdAttribute' => 'category_id',
- *     'parentIdParam' => 'id'
- *  ]
 **/
-class CountAction extends JsonApiAction
+class CountForIdentityAction extends JsonApiAction
 {
-    use HasParentAttributes;
+    /**
+     * @var string
+     * user foreign key attribute
+     */
+    public $userIdAttribute = 'user_id';
 
     /**
      * @var callable
@@ -52,14 +49,6 @@ class CountAction extends JsonApiAction
      */
     public $dataFilter;
 
-    /**
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function init():void
-    {
-        parent::init();
-        $this->validateParentAttributes();
-    }
 
     /**
      * @return \insolita\fractal\providers\JsonApiActiveDataProvider|object
@@ -110,13 +99,7 @@ class CountAction extends JsonApiAction
      */
     protected function prepareParentQuery(ActiveQueryInterface $query):ActiveQueryInterface
     {
-        if (!$this->isParentRestrictionRequired()) {
-            return $query;
-        }
-        $id = Yii::$app->request->getQueryParam('id', null);
-        $condition = ($this->parentIdParam !== 'id')? $this->findModelCondition($id): [];
-        $parentId = Yii::$app->request->getQueryParam($this->parentIdParam, null);
-        $condition[$this->modelTable().'.'.$this->parentIdAttribute] = $parentId;
+        $condition[$this->modelTable().'.'.$this->userIdAttribute] = Yii::$app->user->id;
         $query->where($condition);
         return $query;
     }

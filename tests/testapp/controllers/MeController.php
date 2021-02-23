@@ -6,6 +6,7 @@ use app\models\Comment;
 use app\models\Post;
 use app\transformers\CommentTransformer;
 use app\transformers\PostShortTransformer;
+use insolita\fractal\actions\CountForIdentityAction;
 use insolita\fractal\actions\ListForIdentityAction;
 use insolita\fractal\actions\ViewForIdentityAction;
 use insolita\fractal\JsonApiController;
@@ -58,6 +59,11 @@ class MeController extends JsonApiController
                 'userIdAttribute' => 'user_id',
                 'modelClass' => Comment::class,
                 'transformer' => CommentTransformer::class,
+            ],
+            'posts-count' => [
+                'class' => CountForIdentityAction::class,
+                'userIdAttribute' => 'author_id',
+                'modelClass' => Post::class,
             ]
         ];
     }

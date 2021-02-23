@@ -23,3 +23,7 @@
  - new CountAction that can count query without loading data. Return X-Pagination-Total-Count with count result
 
  - new ListForIdentityAction and ViewForIdentityAction for show data related to current user
+
+1.3.1
+  - Add CountForIdentityAction
+  - remove includes from counter actions

@@ -116,4 +116,13 @@ class ApiUserCest
         $I->seeResponseCodeIs(404);
     }
 
+    public function testPostsCountAction(ApiTester $I)
+    {
+        $I->haveValidContentType();
+        $I->amBearerAuthenticated('Gamma_secret_token');
+        $I->sendHEAD('/me/posts-count');
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeHttpHeader('X-Pagination-Total-Count', 18);
+    }
+
 }
