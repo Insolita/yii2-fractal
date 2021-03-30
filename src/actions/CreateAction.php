@@ -32,12 +32,17 @@ class CreateAction extends JsonApiAction
      *  * Configuration for attaching relationships
      * Should contains key - relation name and array with
      *             idType - php type of resource ids for validation
+     *             validator = callback for custom id validation
      * Keep it empty for disable this ability
      * @see https://jsonapi.org/format/#crud-creating
      * @example
      *  'allowedRelations' => [
      *       'author' => ['idType' => 'integer'],
-     *       'photos' => ['idType' => 'integer'],
+     *       'photos' => ['idType' => 'integer', 'validator' => function($model, array $ids) {
+     *              $relatedModels = Relation::find()->where(['id' => $ids])->andWhere([additional conditions])->all();
+     *              if(count($relatedModels) < $ids) {
+     *                throw new HttpException(422, 'Invalid photos ids');
+     *        }],
      * ]
     **/
     public $allowedRelations = [];
@@ -131,12 +136,16 @@ class CreateAction extends JsonApiAction
         $relationships = $this->getResourceRelationships();
         $relationNames = array_keys($relationships);
         foreach ($relationNames as $relationName) {
+            $options = $this->allowedRelations[$relationName];
             $manager = new RelationshipManager(
                 $model,
                 $relationName,
                 $relationships[$relationName]['data'],
-                $this->allowedRelations[$relationName]['idType']
+                $options['idType']
             );
+            if (isset($options['validator']) && \is_callable($options['validator'])) {
+                $manager->setIdValidateCallback($options['validator']);
+            }
             $manager->attach();
         }
     }

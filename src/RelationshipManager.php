@@ -18,6 +18,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use function array_diff;
+use function call_user_func;
 use function count;
 use function gettype;
 use function implode;
@@ -94,12 +95,10 @@ class RelationshipManager
             throw new HttpException(422, 'Missing ids for create relationship');
         }
         if ($this->idValidateCallback !== null) {
-            $this->idValidateCallback($this->model, $ids);
+            call_user_func($this->idValidateCallback, $this->model, $ids);
         } else {
             $this->validateIdType($ids, false);
         }
-
-
         $pkAttribute = $this->resolvePkAttribute($relation);
         $alreadyRelatedIds = $relation->select($pkAttribute)->column();
         $forLink = array_diff($ids, $alreadyRelatedIds);
@@ -150,7 +149,7 @@ class RelationshipManager
 
         $ids = ArrayHelper::getColumn($this->data, 'id');
         if ($this->idValidateCallback !== null) {
-            $this->idValidateCallback($this->model, $ids);
+            call_user_func($this->idValidateCallback, $this->model, $ids);
         } else {
             $this->validateIdType($ids, false);
         }
@@ -203,8 +202,9 @@ class RelationshipManager
         if (empty($ids)) {
             throw new HttpException(422, 'Missing ids for update relationship');
         }
+
         if ($this->idValidateCallback !== null) {
-            $this->idValidateCallback($this->model, $ids);
+            call_user_func($this->idValidateCallback, $this->model, $ids);
         } else {
             $this->validateIdType($ids, false);
         }
@@ -257,12 +257,13 @@ class RelationshipManager
         $newRelationId = $this->data['id'] ?? null;
 
         if ($this->idValidateCallback !== null) {
-            $this->idValidateCallback($this->model, [$newRelationId]);
+            call_user_func($this->idValidateCallback, $this->model, [$newRelationId]);
         } else {
             $this->validateIdType([$newRelationId], true);
         }
 
         $relatedModel = $relation->one();
+        $alreadyRelatedIds = $relatedModel ? $relatedModel->getPrimaryKey(): [];
         if (!$newRelationId && $relatedModel) {
             $this->model->unlink($this->relationName, $relatedModel, !$unlinkOnly);
             Yii::$app->response->setStatusCode(204);

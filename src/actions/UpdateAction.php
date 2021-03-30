@@ -32,12 +32,21 @@ class UpdateAction extends JsonApiAction
      * Should contains key - relation name and array with
      *             idType - php type of resource ids for validation
      *             unlinkOnly = should unlinked relation models be removed
+     *             validator = callback for custom id validation
      * Keep it empty for disable this ability
      * @see https://jsonapi.org/format/#crud-updating-resource-relationships
      * @example
      *  'allowedRelations' => [
      *       'author' => ['idType' => 'integer', 'unlinkOnly' =>true],
-     *       'photos' => ['idType' => 'integer', 'unlinkOnly' =>false],
+     *       'photos' => [
+     *          'idType' => 'integer',
+     *          'unlinkOnly' =>false,
+     *          'validator' => function($model, array $ids) {
+     *              $relatedModels = Relation::find()->where(['id' => $ids])->andWhere([additional conditions])->all();
+     *              if(count($relatedModels) < $ids) {
+     *                throw new HttpException(422, 'Invalid photos ids');
+     *        }
+     * }],
      * ]
      **/
     public $allowedRelations = [];
@@ -123,15 +132,19 @@ class UpdateAction extends JsonApiAction
     {
         $relationships = $this->getResourceRelationships();
         $relationNames = array_keys($relationships);
-        Yii::warning(\print_r($relationships, true), __METHOD__);
         foreach ($relationNames as $relationName) {
+            $options = $this->allowedRelations[$relationName];
             $manager = new RelationshipManager(
                 $model,
                 $relationName,
                 $relationships[$relationName]['data'],
-                $this->allowedRelations[$relationName]['idType']
+                $options['idType']
             );
-            $manager->patch($this->allowedRelations[$relationName]['unlinkOnly']);
+
+            if (isset($options['validator']) && \is_callable($options['validator'])) {
+                $manager->setIdValidateCallback($options['validator']);
+            }
+            $manager->patch($options['unlinkOnly']);
         }
     }
 }
