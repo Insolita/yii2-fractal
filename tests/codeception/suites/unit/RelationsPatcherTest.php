@@ -2,7 +2,6 @@
 use app\models\Comment;
 use app\models\Post;
 use insolita\fractal\RelationshipManager;
-use yii\base\NotSupportedException;
 
 class RelationsPatcherTest extends \Codeception\Test\Unit
 {
@@ -21,8 +20,9 @@ class RelationsPatcherTest extends \Codeception\Test\Unit
         verify($comments)->notEmpty();
         $newComments = array_merge($comments, $comments2);
         $service = new RelationshipManager($model, 'comments', array_map(function($id) {
-            return ['id'=>$id];
-        }, $newComments));
+            return ['id' => $id];
+        },
+            $newComments));
         $service->patch();
         $model->refresh();
         $model2->refresh();
@@ -39,8 +39,9 @@ class RelationsPatcherTest extends \Codeception\Test\Unit
         verify($comments2)->notEmpty();
         verify($comments)->notEmpty();
         $service = new RelationshipManager($model, 'comments', array_map(function($id) {
-            return ['id'=>$id];
-        }, $comments2));
+            return ['id' => $id];
+        },
+            $comments2));
         $service->patch();
         $model->refresh();
         $model2->refresh();
@@ -65,7 +66,6 @@ class RelationsPatcherTest extends \Codeception\Test\Unit
         expect($deleted->post_id)->null();
     }
 
-
     public function testDelete()
     {
         $model = Post::findOne(11);
@@ -78,5 +78,23 @@ class RelationsPatcherTest extends \Codeception\Test\Unit
         expect($model->getComments()->count())->equals(1);
         $deleted = Comment::findOne($comments[0]);
         expect($deleted)->null();
+    }
+
+    public function testPatchWithValidateCallback()
+    {
+        $this->expectException(\yii\web\HttpException::class);
+        $model = Post::findOne(11);
+        $comments = Comment::find()->where(['!=', 'post_id', 11])->select(['id'])->limit(5)->asArray()->all();
+        verify($comments)->notEmpty();
+        $service = new RelationshipManager($model, 'comments', $comments);
+        $service->setIdValidateCallback(function($model, $ids) {
+            $comments = Comment::find()->where(['id' => $ids])->all();
+            foreach ($comments as $comment) {
+                if ($comment->user_id < 3) {
+                    throw new \yii\web\HttpException(422, 'Comment ' . $comment->id . ' cannot be linked to this post');
+                }
+            }
+        });
+        $service->patch();
     }
 }

@@ -362,6 +362,34 @@ class ApiPostCest
             ['post_id'=>null, 'user_id' => 3, 'message' => 'Third comment333', 'created_at'=>'2020-03-04 01:02:03']
         );
 
+        $badComment = $I->haveInDatabase(
+            'public.comments',
+            ['post_id'=>null, 'user_id' => 3, 'message' => 'Very old comment', 'created_at'=>'2018-03-04 01:02:03']
+        );
+
+        $I->sendPATCH('/posts2/12', [
+            'data' => [
+                'type'=>'posts',
+                'attributes'=>[
+                    'name'=>'My changed post with linked comments',
+                ], 'relationships'=>[
+                    'comments' => [
+                        'data' => [
+                            ['id'=> $id1, 'type' => 'comments'],
+                            ['id'=> $badComment, 'type' => 'comments'],
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+        $I->seeResponseCodeIs(422);
+        $I->seeResponseContainsJson([
+            'errors'=>['detail' => 'Old comments cannot be linked to this post']
+        ]);
+        $I->dontSeeInDatabase('public.comments', ['post_id' => 12, 'id' => $id1]);
+        $I->dontSeeInDatabase('public.comments', ['post_id' => 12, 'id' => $badComment]);
+
+
         $I->sendPATCH('/posts2/12', [
             'data' => [
                 'type'=>'posts',

@@ -7,9 +7,11 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
 use app\models\Post;
 use app\transformers\PostTransformer;
 use app\transformers\PostWithRelationsTransformer;
+use DateTime;
 use insolita\fractal\actions\CountAction;
 use insolita\fractal\actions\CreateAction;
 use insolita\fractal\actions\CreateRelationshipAction;
@@ -28,7 +30,10 @@ use yii\base\DynamicModel;
 use yii\data\ActiveDataFilter;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBearerAuth;
+use yii\helpers\StringHelper;
 use yii\web\ForbiddenHttpException;
+use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 use const SORT_ASC;
 use const SORT_DESC;
 
@@ -186,7 +191,15 @@ class PostController extends ActiveJsonApiController
             'checkAccess' => [$this, 'checkAccess'],
             'scenario' => $this->updateScenario,
             'allowedRelations' => [
-                'comments' => ['idType' => 'integer', 'unlinkOnly' => true],
+                'comments' => ['idType' => 'integer', 'unlinkOnly' => true, 'validator' => function($model, $ids) {
+                    $comments = Comment::findAll(['id' => $ids]);
+                    foreach ($comments as $comment) {
+                        $date =DateTime::createFromFormat('Y-m-d H:i:s', $comment->created_at);
+                        if((int) $date->format('Y') < 2020) {
+                            throw new HttpException(422, 'Old comments cannot be linked to this post');
+                        }
+                    }
+                }],
             ],
         ];
         $actions['list-with-join'] = [

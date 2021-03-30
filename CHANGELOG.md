@@ -27,3 +27,6 @@
 1.3.1
   - Add CountForIdentityAction
   - remove includes from counter actions
+
+1.3.2
+  - Add validator callback for ability to check allowedRelations for Create and Update Actions
