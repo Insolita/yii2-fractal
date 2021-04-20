@@ -8,6 +8,7 @@
 namespace insolita\fractal\actions;
 
 use Yii;
+use yii\base\Model;
 use yii\web\ForbiddenHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -19,6 +20,11 @@ use yii\web\ServerErrorHttpException;
 class DeleteAction extends JsonApiAction
 {
     use HasParentAttributes;
+
+    /**
+     * @var string the scenario to be assigned to the new model before it is validated and saved.
+     */
+    public $scenario = Model::SCENARIO_DEFAULT;
 
     public function init():void
     {
@@ -40,6 +46,7 @@ class DeleteAction extends JsonApiAction
             throw new ForbiddenHttpException('Update with relationships not supported yet');
         }
         $model = $this->isParentRestrictionRequired() ? $this->findModelForParent($id) : $this->findModel($id);
+        $model->setScenario($this->scenario);
         if ($this->checkAccess) {
             call_user_func($this->checkAccess, $this->id, $model);
         }

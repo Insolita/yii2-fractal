@@ -30,3 +30,6 @@
 
 1.3.2
   - Add validator callback for ability to check allowedRelations for Create and Update Actions
+
+1.3.3
+ - Add support scenario for delete action
