@@ -33,3 +33,6 @@
 
 1.3.3
  - Add support scenario for delete action
+
+1.3.4
+ - Add aftersave callback for create/update actions that called after save model with all relations

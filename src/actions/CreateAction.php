@@ -7,6 +7,7 @@
 
 namespace insolita\fractal\actions;
 
+use Closure;
 use insolita\fractal\exceptions\ValidationException;
 use insolita\fractal\RelationshipManager;
 use League\Fractal\Resource\Item;
@@ -17,6 +18,7 @@ use yii\db\ActiveRecordInterface;
 use yii\helpers\Url;
 use yii\web\ServerErrorHttpException;
 use function array_keys;
+use function call_user_func;
 
 /**
  * Handler for routes POST /resource
@@ -55,6 +57,15 @@ class CreateAction extends JsonApiAction
      * @var string the name of route or action for view created model
      */
     public $viewRoute = 'view';
+
+    /**
+     * @var callable|Closure Callback after save model with all relations
+     * @example
+     *   'afterSave' => function ($model) {
+     *           $model->doSomething();
+     * }
+    */
+    public $afterSave = null;
 
     /**
      * @throws \yii\base\InvalidConfigException
@@ -114,6 +125,9 @@ class CreateAction extends JsonApiAction
             throw $e;
         }
         $model->refresh();
+        if ($this->afterSave !== null) {
+            call_user_func($this->afterSave, $model);
+        }
         $response = Yii::$app->getResponse();
         $response->setStatusCode(201);
         $response->getHeaders()->set('Location', Url::to([$this->viewRoute, 'id' => $model->primaryKey], true));

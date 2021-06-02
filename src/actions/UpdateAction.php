@@ -7,6 +7,7 @@
 
 namespace insolita\fractal\actions;
 
+use Closure;
 use insolita\fractal\exceptions\ValidationException;
 use insolita\fractal\RelationshipManager;
 use League\Fractal\Resource\Item;
@@ -54,7 +55,14 @@ class UpdateAction extends JsonApiAction
      * @var string the scenario to be assigned to the model before it is validated and updated.
      */
     public $scenario = Model::SCENARIO_DEFAULT;
-
+    /**
+     * @var callable|Closure Callback after save model with all relations
+     * @example
+     *   'afterSave' => function ($model) {
+     *           $model->doSomething();
+     * }
+     */
+    public $afterSave = null;
     /**
      * @throws \yii\base\InvalidConfigException
      */
@@ -116,6 +124,9 @@ class UpdateAction extends JsonApiAction
             throw $e;
         }
         $model->refresh();
+        if ($this->afterSave !== null) {
+            call_user_func($this->afterSave, $model);
+        }
         return new Item($model, new $this->transformer, $this->resourceKey);
     }
 
