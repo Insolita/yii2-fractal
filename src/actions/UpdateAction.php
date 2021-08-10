@@ -88,7 +88,7 @@ class UpdateAction extends JsonApiAction
     {
         /* @var $model ActiveRecord */
         $model = $this->isParentRestrictionRequired() ? $this->findModelForParent($id) : $this->findModel($id);
-
+        $model->scenario = $this->scenario;
         if ($this->checkAccess) {
             call_user_func($this->checkAccess, $this->id, $model);
         }
@@ -107,7 +107,6 @@ class UpdateAction extends JsonApiAction
 
         $transact = $model::getDb()->beginTransaction();
         try {
-            $model->scenario = $this->scenario;
             $model->load($this->getResourceAttributes(), '');
             if ($model->save() === false && !$model->hasErrors()) {
                 throw new ServerErrorHttpException('Failed to update the object for unknown reason.');

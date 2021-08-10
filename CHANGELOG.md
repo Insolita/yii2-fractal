@@ -36,3 +36,6 @@
 
 1.3.4
  - Add aftersave callback for create/update actions that called after save model with all relations
+
+1.3.5
+ - Change UpdateAction, set model scenario before checkAccess calling
