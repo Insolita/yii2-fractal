@@ -36,3 +36,29 @@
 
 1.3.4
  - Add aftersave callback for create/update actions that called after save model with all relations
+
+2.0.0
+ - Changed signature of checkAccess callbacks, now whole action object passed, instead of action id
+   Before:
+ ```php
+...
+    'checkAccess' => function(string $action, $model = null) {
+       if($action === 'create') {
+             //... 
+       }
+    }
+ ```
+
+After:
+Before:
+
+ ```php
+
+...
+    'checkAccess' => function(JsonApiAction $action, $model = null) {
+           if($action->id === 'create') {
+             //... 
+           }
+       
+    }
+ ```

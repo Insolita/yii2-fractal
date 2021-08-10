@@ -65,7 +65,7 @@ class JsonApiAction extends Action
      * if the current user has the permission to execute the action. If not set, the access
      * check will not be performed. The signature of the callable should be as follows,
      * ```php
-     * function ($action, $model = null) {
+     * function (JsonApiAction $action, $model = null) {
      *     // $model is the requested model instance.
      *     // If null, it means no specific model (e.g. IndexAction)
      * }

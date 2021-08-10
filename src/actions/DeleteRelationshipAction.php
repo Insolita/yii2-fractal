@@ -60,7 +60,7 @@ class DeleteRelationshipAction extends JsonApiAction
     {
         $model = $this->findModel($id);
         if ($this->checkAccess) {
-            call_user_func($this->checkAccess, $this->id, $model);
+            call_user_func($this->checkAccess, $this, $model);
         }
         $manager = new RelationshipManager($model, $this->relationName, $this->getResourceData(), $this->pkType);
         if ($this->idValidateCallback !== null) {

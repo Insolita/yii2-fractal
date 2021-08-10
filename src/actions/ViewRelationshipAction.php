@@ -74,7 +74,7 @@ class ViewRelationshipAction extends JsonApiAction
         $model = $this->findModel($id);
 
         if ($this->checkAccess) {
-            call_user_func($this->checkAccess, $this->id, $model);
+            call_user_func($this->checkAccess, $this, $model);
         }
 
         /**@var ActiveQueryInterface|\yii\db\ActiveQuery $relation */

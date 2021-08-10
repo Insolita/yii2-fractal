@@ -77,7 +77,7 @@ class ListForIdentityAction extends JsonApiAction
     public function run()
     {
         if ($this->checkAccess) {
-            call_user_func($this->checkAccess, $this->id);
+            call_user_func($this->checkAccess, $this);
         }
 
         return $this->makeDataProvider();
