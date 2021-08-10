@@ -77,7 +77,7 @@ class ViewForIdentityAction extends JsonApiAction
 
 
         if ($this->checkAccess) {
-            call_user_func($this->checkAccess, $this, $model);
+            call_user_func($this->checkAccess, $this->id, $model);
         }
 
         return new Item($model, new $this->transformer, $this->resourceKey);

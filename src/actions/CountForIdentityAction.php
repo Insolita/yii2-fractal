@@ -58,7 +58,7 @@ class CountForIdentityAction extends JsonApiAction
     public function run()
     {
         if ($this->checkAccess) {
-            call_user_func($this->checkAccess, $this);
+            call_user_func($this->checkAccess, $this->id);
         }
 
         $query =  $this->makeQuery();

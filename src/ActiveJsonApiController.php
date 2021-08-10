@@ -10,7 +10,6 @@ namespace insolita\fractal;
 use insolita\fractal\actions\CreateAction;
 use insolita\fractal\actions\DeleteAction;
 use insolita\fractal\actions\HasResourceTransformer;
-use insolita\fractal\actions\JsonApiAction;
 use insolita\fractal\actions\ListAction;
 use insolita\fractal\actions\UpdateAction;
 use insolita\fractal\actions\ViewAction;
@@ -104,12 +103,12 @@ class ActiveJsonApiController extends JsonApiController
      * to run the specified action against the specified data model.
      * If the user does not have access, a [[ForbiddenHttpException]] should be thrown.
      *
-     * @param \insolita\fractal\actions\JsonApiAction $action an instance of executed action
+     * @param string $action the ID of the action to be executed
      * @param object $model the model to be accessed. If null, it means no specific model is being accessed.
      * @param array $params additional parameters
      * @throws ForbiddenHttpException if the user does not have access
      */
-    public function checkAccess(JsonApiAction $action, $model = null, $params = [])
+    public function checkAccess($action, $model = null, $params = [])
     {
     }
 }
