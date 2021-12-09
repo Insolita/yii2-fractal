@@ -7,6 +7,7 @@
 
 namespace insolita\fractal\actions;
 
+use Closure;
 use Yii;
 use yii\base\Model;
 use yii\web\ForbiddenHttpException;
@@ -25,6 +26,15 @@ class DeleteAction extends JsonApiAction
      * @var string the scenario to be assigned to the new model before it is validated and saved.
      */
     public $scenario = Model::SCENARIO_DEFAULT;
+
+    /**
+     * @var callable|Closure Callback after save model with all relations
+     * @example
+     *   'afterDelete' => function ($model) {
+     *           doSomething();
+     * }
+     */
+    public $afterDelete = null;
 
     public function init():void
     {
@@ -53,7 +63,9 @@ class DeleteAction extends JsonApiAction
         if ($model->delete() === false) {
             throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
         }
-
+        if ($this->afterDelete !== null) {
+            call_user_func($this->afterDelete, $model);
+        }
         Yii::$app->getResponse()->setStatusCode(204);
     }
 }
