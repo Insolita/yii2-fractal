@@ -58,7 +58,7 @@ class UpdateAction extends JsonApiAction
     /**
      * @var callable|Closure Callback after save model with all relations
      * @example
-     *   'afterSave' => function ($model) {
+     *   'afterSave' => function ($model, $originalModel) {
      *           $model->doSomething();
      * }
      */
@@ -92,6 +92,7 @@ class UpdateAction extends JsonApiAction
         if ($this->checkAccess) {
             call_user_func($this->checkAccess, $this->id, $model);
         }
+        $originalModel = $model;
         RelationshipManager::validateRelationships($model, $this->getResourceRelationships(), $this->allowedRelations);
         if (empty($this->getResourceAttributes()) && $this->hasResourceRelationships()) {
             $transact = $model::getDb()->beginTransaction();
@@ -124,7 +125,7 @@ class UpdateAction extends JsonApiAction
         }
         $model->refresh();
         if ($this->afterSave !== null) {
-            call_user_func($this->afterSave, $model);
+            call_user_func($this->afterSave, $model, $originalModel);
         }
         return new Item($model, new $this->transformer, $this->resourceKey);
     }

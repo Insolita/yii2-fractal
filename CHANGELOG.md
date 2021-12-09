@@ -39,3 +39,7 @@
 
 1.3.5
  - Change UpdateAction, set model scenario before checkAccess calling
+
+1.4.0
+ - Add callable afterDelete for DeleteAction (#17)
+ - Add additional param originalModel for afterSave callback for UpdateAction (#18)
