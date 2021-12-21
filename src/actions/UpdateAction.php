@@ -92,7 +92,7 @@ class UpdateAction extends JsonApiAction
         if ($this->checkAccess) {
             call_user_func($this->checkAccess, $this->id, $model);
         }
-        $originalModel = $model;
+        $originalModel = clone $model;
         RelationshipManager::validateRelationships($model, $this->getResourceRelationships(), $this->allowedRelations);
         if (empty($this->getResourceAttributes()) && $this->hasResourceRelationships()) {
             $transact = $model::getDb()->beginTransaction();
