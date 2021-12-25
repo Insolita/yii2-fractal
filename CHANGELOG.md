@@ -43,3 +43,6 @@
 1.4.0
  - Add callable afterDelete for DeleteAction (#17)
  - Add additional param originalModel for afterSave callback for UpdateAction (#18)
+
+1.4.1 
+ - fix #19  merge (#20) Thanks [Sohel Ahmed](https://github.com/SOHELAHMED7)
